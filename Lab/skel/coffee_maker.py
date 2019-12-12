@@ -87,14 +87,24 @@ def perform_action(user_answer):
         if user_choice in recipes:
             print "Wait a couple of seconds..I am not a racket...\n"
             time.sleep(5)
-            print "Your coffee is served! \n"
+            
             water_needed = recipes[user_choice][0]
             coffee_nedded = recipes[user_choice][1]
             milk_nedded = recipes[user_choice][2]
-            
-            resources[WATER] -= water_needed
-            resources[COFFEE] -= coffee_nedded
-            resources[MILK] -= milk_nedded
+            if resources[WATER] - water_needed > 0:
+                resources[WATER] -= water_needed
+            else:
+                print "No resources\n"
+            if resources[COFFEE] - coffee_nedded > 0:
+                resources[COFFEE] -= coffee_nedded
+            else:
+                print "No resources\n"
+            if resources[MILK] - milk_nedded > 0:
+                resources[MILK] -= milk_nedded
+            else:
+                print "No resources\n"
+
+            print "Your coffee is served! \n"
         else:
             print "I don't know such a recipe!\n"
             print "Plase choose from: \n\t americano, cappucciono, espresso \n"
