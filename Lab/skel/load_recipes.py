@@ -12,3 +12,20 @@
 
 RECIPES_FOLDER = "recipes"
 
+
+def load_recipes():
+	recipes = ["./recipes/americano.txt", "./recipes/espresso.txt", "./recipes/cappuccino.txt"]
+	result = {}
+	for recipe in recipes:
+		f  = open(recipe)
+		current_recipe = {}
+		
+		name = f.readline().rstrip('\n')
+		water = f.readline()
+		coffee = f.readline()
+		milk = f.readline()
+
+		result[name] = [ int(water.split("=")[1]), int(coffee.split("=")[1]), int(milk.split("=")[1]) ]				
+		f.close()
+
+	return result

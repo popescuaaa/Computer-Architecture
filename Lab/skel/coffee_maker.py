@@ -1,34 +1,9 @@
 import sys
+from  load_recipes import load_recipes
+import time
+print "I'm a simple coffee maker\n"
 
-print "I'm a simple coffee maker"
-print "Press enter"
-sys.stdin.readline()
-print "Teach me how to make coffee...please..."
 
-""" 
-Implement the coffee maker's commands. Interact with the user via stdin and print to stdout.
-
-Requirements:
-    - use functions
-    - use __main__ code block
-    - access and modify dicts and/or lists
-    - use at least once some string formatting (e.g. functions such as strip(), lower(), 
-    format()) and types of printing (e.g. "%s %s" % tuple(["a", "b"]) prints "a b"
-    - BONUS: read the coffee recipes from a file, put the file-handling code in another module 
-    and import it (see the recipes/ folder)
-    
-There's a section in the lab with syntax and examples for each requirement.
-
-Feel free to define more commands, other coffee types, more resources if you'd like and have time.
-"""
-
-"""
-Tips:
-*  Start by showing a message to the user to enter a command, remove our initial messages
-*  Keep types of available coffees in a data structure such as a list or dict
-e.g. a dict with coffee name as a key and another dict with resource mappings (resource:percent) 
-as value
-"""
 
 # Commands
 EXIT = "exit"
@@ -79,3 +54,64 @@ MILK = "milk"
 
 # Coffee maker's resources - the values represent the fill percents
 resources = {WATER: 100, COFFEE: 100, MILK: 100}
+recipes = [ESPRESSO, AMERICANO, CAPPUCCINO]
+resources_entries = [WATER, COFFEE, MILK]
+
+#prepare the recipe
+
+recipes  = load_recipes()
+
+def perform_action(user_answer):
+    if user_answer == EXIT:
+        print "All the best! Bye!\n"
+        sys.exit()
+    if user_answer == LIST_COFFEES:
+        for recipe in recipes:
+            print recipe, "\n"
+    if user_answer == RESOURCE_STATUS:
+        for i in range(0, 3):
+           print resources_entries[i], ": ", resources[resources_entries[i]], " %" 
+    if user_answer == REFILL:
+        user_resource = sys.stdin.readline().rstrip('\n')
+        
+        if user_resource == 'all':
+            for resource in resources:
+                resources[resource] = 100
+        elif user_resource in resources:
+            resources[user_resource] = 100
+        else:
+           print "No such resource!\n"    
+    if user_answer == MAKE_COFFEE:
+        user_choice = sys.stdin.readline().rstrip('\n')
+        print recipes
+        if user_choice in recipes:
+            print "Wait a couple of seconds..I am not a racket...\n"
+            time.sleep(5)
+            print "Your coffee is served! \n"
+            water_needed = recipes[user_choice][0]
+            coffee_nedded = recipe[user_choice][1]
+            milk_nedded = recipes[user_choice][2]
+            
+            resources[WATER] -= water_needed
+            resources[COFFEE] -= coffee_nedded
+            resources[MILK] -= milk_nedded
+        else:
+            print "I don't know such a recipe!\n"
+            print "Plase choose from: \n\t americano, cappucciono, espresso \n"
+
+def interactions():
+    while True:
+        user_answer = sys.stdin.readline().rstrip('\n')
+        if user_answer in commands:
+            perform_action(user_answer)
+        else:
+            print "The command is not good! I don't have such commands in memory!\n"
+            print "Try the following commands: \n"
+            for command in commands:
+                print command, " \n"
+
+
+
+if __name__ == "__main__":
+    
+    interactions()
