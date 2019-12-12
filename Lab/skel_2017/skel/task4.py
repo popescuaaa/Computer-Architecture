@@ -1,5 +1,5 @@
 import sys, os.path
-
+import task3
 """
 Task 4 - import your module
 
@@ -25,3 +25,4 @@ if __name__ == "__main__":
         exit(0)
 
     # TODO test one of the functions from task3
+    print task3.top_used_words(sys.argv[1], 10)
