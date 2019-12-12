@@ -1,0 +1,19 @@
+1. Afișați data și ceasul. Urmăriți cerințele și indicațiile din fișierul ''hello.py'' din scheletul de laborator
+   * urmăriți secțiunea Stringuri[0] și documentația modului datetime (https://docs.python.org/2/library/datetime.html|datetime]]
+2. Citiți textul unui fișier dat și afișați informații despre acesta. Urmăriți cerințele și indicațiile din fișierul ''task2.py'' din scheletul de laborator.
+   * urmăriți secțiunile Stringuri[0], Main-ul[1] și Operații cu fișiere[2]
+3. Implementați funcții care parsează un fișier. Urmăriți cerințele și indicațiile din fișierul ''task3.py'' din scheletul de laborator.
+   * urmăriți secțiunile Functii[3], Stringuri[0], Main-ul[1] și Operații cu fișiere[2]
+   * la funcția 3 este obligatoriu să folosiți dicționare
+4. Includeți modulul de la exercițiul anterior și folosiți o funcție din el. Urmăriți cerințele și indicațiile din fișierul ''task4.py'' din scheletul de laborator.
+   * urmăriți secțiunea Includerea de cod extern [4]
+5. Rulați //pylint// pentru modulul de la exercițiul 3, observați statisticile și aduceți câteva îmbunatățiri ale code-style-ului (dacă e cazul).
+   * în linia de comandă: ''pylint nume_modul''
+Bonus: Recomandăm parcurgerea (la laborator sau acasă) a taskurilor din fișierul task5.py pentru a observa diverse concepte: mutability, generators, ''is'' vs ''==''.
+   * linkuri utile: [[http://guilload.com/python-string-interning/|String Interning]] (aka pooling), [[http://pymbook.readthedocs.org/en/latest/igd.html#generator-expressions|Generators]], [[http://blog.lerner.co.il/why-you-should-almost-never-use-is-in-python/|articol despre folosirea 'is']]
+
+[0] http://cs.curs.pub.ro/wiki/asc/asc:lab1:index#stringuri
+[1] http://cs.curs.pub.ro/wiki/asc/asc:lab1:index#main-ul
+[2] http://cs.curs.pub.ro/wiki/asc/asc:lab1:index#operatii_cu_fisiere
+[3] http://cs.curs.pub.ro/wiki/asc/asc:lab1:index#functii
+[4] http://cs.curs.pub.ro/wiki/asc/asc:lab1:index#includerea_de_cod_extern

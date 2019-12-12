@@ -5,14 +5,14 @@ print "I'm a simple coffee maker\n"
 
 
 
-# Commands
+# COMMANDS
 EXIT = "exit"
 LIST_COFFEES = "list"
 MAKE_COFFEE = "make"  #!!! when making coffee you must first check that you have enough resources!
 HELP = "help"
 REFILL = "refill"
 RESOURCE_STATUS = "status"
-commands = [EXIT, LIST_COFFEES, MAKE_COFFEE, REFILL, RESOURCE_STATUS, HELP]
+COMMANDS = [EXIT, LIST_COFFEES, MAKE_COFFEE, REFILL, RESOURCE_STATUS, HELP]
 
 """
 Example result/interactions:
@@ -59,7 +59,7 @@ resources_entries = [WATER, COFFEE, MILK]
 
 #prepare the recipe
 
-recipes  = load_recipes()
+recipes = load_recipes()
 
 def perform_action(user_answer):
     if user_answer == EXIT:
@@ -112,12 +112,12 @@ def perform_action(user_answer):
 def interactions():
     while True:
         user_answer = sys.stdin.readline().rstrip('\n')
-        if user_answer in commands:
+        if user_answer in COMMANDS:
             perform_action(user_answer)
         else:
-            print "The command is not good! I don't have such commands in memory!\n"
-            print "Try the following commands: \n"
-            for command in commands:
+            print "The command is not good! I don't have such COMMANDS in memory!\n"
+            print "Try the following COMMANDS: \n"
+            for command in COMMANDS:
                 print command, " \n"
 
 
