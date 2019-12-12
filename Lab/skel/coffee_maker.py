@@ -92,9 +92,9 @@ def perform_action(user_answer):
             coffee_nedded = recipes[user_choice][1]
             milk_nedded = recipes[user_choice][2]
             
-            resources[WATER] -= int(water_needed)
-            resources[COFFEE] -= int(coffee_nedded)
-            resources[MILK] -= int(milk_nedded)
+            resources[WATER] -= water_needed
+            resources[COFFEE] -= coffee_nedded
+            resources[MILK] -= milk_nedded
         else:
             print "I don't know such a recipe!\n"
             print "Plase choose from: \n\t americano, cappucciono, espresso \n"
