@@ -22,18 +22,60 @@
 """
 
 import random
-
+import sys
+from threading import Thread, Lock
+import time 
 shared_var = 0
+
+class CustomThread(Thread):
+    def __init__(self, thread_id, input_list, lock, shared_var):
+        Thread.__init__(self)
+        self.thread_id = thread_id
+        self.input_list = input_list
+        self.lock = lock
+        self.shared_var = shared_var
+    
+    def run(self): 
+        index = random.randint(0, len(self.input_list))
+        time.sleep(random.randint(0, 1))
+        with lock:
+            curr_elem = self.input_list[index][0]
+            while self.input_list[index][1]:
+                index = random.randint(0, len(self.input_list))
+                curr_elem = self.input_list[index][0]
+            self.input_list[index][1] = True # marked as selected
+            self.shared_var += curr_elem
+
+        print "Current thread: %s has a value for the shared variable equal to: %s" % (self.thread_id, self.shared_var)
+
 
 
 if __name__ == "__main__":
 
     #TODO provide the number of threads from the command line
-    num_threads = 10
+    num_threads = int(sys.argv[1])
 
     input_list = [random.randint(0, 500) for i in range(num_threads)]
     initial_sum = reduce(lambda x, y: x + y, input_list)
+    # remapping
+    input_dict = []
+    for entry in input_list:
+        input_dict.append([entry, False])
+
+
     print " ".join([str(x) for x in input_list])
 
     print initial_sum
     print shared_var
+    another_shared_var  = 0
+    lock = Lock()
+    thread_array = []
+    for i in range(num_threads):
+        thread_array.append(CustomThread(i, input_dict, lock, another_shared_var))
+    for entry in thread_array:
+        entry.start()
+    for entry in thread_array:
+        entry.join()
+
+    print "==========\n"
+    print another_shared_var
