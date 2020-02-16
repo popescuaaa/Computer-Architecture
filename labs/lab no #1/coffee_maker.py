@@ -1,7 +1,7 @@
 import sys
 from  load_recipes import load_recipes
 import time
-print "I'm a simple coffee maker\n"
+print("I'm a simple coffee maker\n")
 
 
 
@@ -63,14 +63,14 @@ recipes = load_recipes()
 
 def perform_action(user_answer):
     if user_answer == EXIT:
-        print "All the best! Bye!\n"
+        print("All the best! Bye!\n")
         sys.exit()
     if user_answer == LIST_COFFEES:
         for recipe in recipes:
-            print recipe, "\n"
+            print(recipe, "\n")
     if user_answer == RESOURCE_STATUS:
         for i in range(0, 3):
-           print resources_entries[i], ": ", resources[resources_entries[i]], " %" 
+           print(resources_entries[i], ": ", resources[resources_entries[i]], " %")
     if user_answer == REFILL:
         user_resource = sys.stdin.readline().rstrip('\n')
         
@@ -80,13 +80,12 @@ def perform_action(user_answer):
         elif user_resource in resources:
             resources[user_resource] = 100
         else:
-           print "No such resource!\n"    
+           print("No such resource!\n")    
     if user_answer == MAKE_COFFEE:
         user_choice = sys.stdin.readline().rstrip('\n')
-        print recipes
+        print(recipes)
         if user_choice in recipes:
-            print "Wait a couple of seconds..I am not a racket...\n"
-            time.sleep(5)
+            print("Wait a couple of seconds..I am not a racket...\n")
             
             water_needed = recipes[user_choice][0]
             coffee_nedded = recipes[user_choice][1]
@@ -94,20 +93,20 @@ def perform_action(user_answer):
             if resources[WATER] - water_needed > 0:
                 resources[WATER] -= water_needed
             else:
-                print "No resources\n"
+                print("No resources\n")
             if resources[COFFEE] - coffee_nedded > 0:
                 resources[COFFEE] -= coffee_nedded
             else:
-                print "No resources\n"
+                print("No resources\n")
             if resources[MILK] - milk_nedded > 0:
                 resources[MILK] -= milk_nedded
             else:
-                print "No resources\n"
+                print("No resources\n")
 
-            print "Your coffee is served! \n"
+            print("Your coffee is served! \n")
         else:
-            print "I don't know such a recipe!\n"
-            print "Plase choose from: \n\t americano, cappucciono, espresso \n"
+            print("I don't know such a recipe!\n")
+            print("Plase choose from: \n\t americano, cappucciono, espresso \n")
 
 def interactions():
     while True:
@@ -115,12 +114,10 @@ def interactions():
         if user_answer in COMMANDS:
             perform_action(user_answer)
         else:
-            print "The command is not good! I don't have such COMMANDS in memory!\n"
-            print "Try the following COMMANDS: \n"
+            print("The command is not good! I don't have such COMMANDS in memory!\n")
+            print("Try the following COMMANDS: \n")
             for command in COMMANDS:
-                print command, " \n"
-
-
+                print(command, " \n")
 
 if __name__ == "__main__":
     
