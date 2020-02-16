@@ -24,6 +24,7 @@
 import random
 import sys
 from threading import Thread, Lock
+from  functools import reduce
 import time 
 shared_var = 0
 
@@ -36,40 +37,35 @@ class CustomThread(Thread):
         self.shared_var = shared_var
     
     def run(self): 
-        index = random.randint(0, len(self.input_list))
+        index = random.randint(0, len(self.input_list)-1)
         time.sleep(random.randint(0, 1))
         with lock:
             curr_elem = self.input_list[index][0]
             while self.input_list[index][1]:
-                index = random.randint(0, len(self.input_list))
+                index = random.randint(0, len(self.input_list)-1)
                 curr_elem = self.input_list[index][0]
             self.input_list[index][1] = True # marked as selected
             self.shared_var += curr_elem
 
-        print "Current thread: %s has a value for the shared variable equal to: %s" % (self.thread_id, self.shared_var)
-
-
+        print("Current thread: %s has a value for the shared variable equal to: %s" % (self.thread_id, self.shared_var))
 
 if __name__ == "__main__":
-
-    #TODO provide the number of threads from the command line
     num_threads = int(sys.argv[1])
 
     input_list = [random.randint(0, 500) for i in range(num_threads)]
     initial_sum = reduce(lambda x, y: x + y, input_list)
-    # remapping
+    
     input_dict = []
     for entry in input_list:
         input_dict.append([entry, False])
 
 
-    print " ".join([str(x) for x in input_list])
+    print(" ".join([str(x) for x in input_list]))
 
-    print initial_sum
-    print shared_var
-    another_shared_var  = 0
+    another_shared_var = 0
     lock = Lock()
     thread_array = []
+
     for i in range(num_threads):
         thread_array.append(CustomThread(i, input_dict, lock, another_shared_var))
     for entry in thread_array:
@@ -77,5 +73,5 @@ if __name__ == "__main__":
     for entry in thread_array:
         entry.join()
 
-    print "==========\n"
-    print another_shared_var
+
+    print(another_shared_var)

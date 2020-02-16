@@ -20,7 +20,7 @@ class CustomThread(Thread):
         self.thread_id = thread_id
 
     def run(self):
-        print "Thread %s: %s\n" % (self.thread_id, self.message)
+        print("Thread %s: %s\n" % (self.thread_id, self.message))
         
         
 def main():
