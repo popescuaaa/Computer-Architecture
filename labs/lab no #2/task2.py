@@ -49,6 +49,8 @@ class CustomThread(Thread):
 
         print("Current thread: %s has a value for the shared variable equal to: %s" % (self.thread_id, self.shared_var))
 
+
+
 if __name__ == "__main__":
     num_threads = int(sys.argv[1])
 
