@@ -11,10 +11,9 @@
 """
 
 RECIPES_FOLDER = "recipes"
-
+recipes = ["./recipes/americano.txt", "./recipes/espresso.txt", "./recipes/cappuccino.txt"]
 
 def load_recipes():
-	recipes = ["./recipes/americano.txt", "./recipes/espresso.txt", "./recipes/cappuccino.txt"]
 	result = {}
 	for recipe in recipes:
 		f  = open(recipe)

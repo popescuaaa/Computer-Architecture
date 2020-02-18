@@ -1,9 +1,12 @@
+# 
+
+
+
+
 import sys
 from  load_recipes import load_recipes
 import time
 print("I'm a simple coffee maker\n")
-
-
 
 # COMMANDS
 EXIT = "exit"
@@ -16,7 +19,6 @@ COMMANDS = [EXIT, LIST_COFFEES, MAKE_COFFEE, REFILL, RESOURCE_STATUS, HELP]
 
 """
 Example result/interactions:
-
 I'm a smart coffee maker
 Enter command:	
 list
@@ -72,8 +74,8 @@ def perform_action(user_answer):
         for i in range(0, 3):
            print(resources_entries[i], ": ", resources[resources_entries[i]], " %")
     if user_answer == REFILL:
+        print("Please enter the name of the resource: water, coffee, milk or all if the status is sooo...bad\n")
         user_resource = sys.stdin.readline().rstrip('\n')
-        
         if user_resource == 'all':
             for resource in resources:
                 resources[resource] = 100
@@ -82,6 +84,7 @@ def perform_action(user_answer):
         else:
            print("No such resource!\n")    
     if user_answer == MAKE_COFFEE:
+        print("Plase choose from: \n\t americano, cappucciono, espresso \n")
         user_choice = sys.stdin.readline().rstrip('\n')
         print(recipes)
         if user_choice in recipes:
@@ -107,6 +110,10 @@ def perform_action(user_answer):
         else:
             print("I don't know such a recipe!\n")
             print("Plase choose from: \n\t americano, cappucciono, espresso \n")
+    if user_answer == "help":
+        print("Try the following COMMANDS: \n")
+        for command in COMMANDS:
+            print(command, " \n")
 
 def interactions():
     while True:
