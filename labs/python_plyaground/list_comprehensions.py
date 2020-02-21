@@ -27,4 +27,7 @@ if __name__ == "__main__":
     print(odd)
 
 
-
+    # duplicates removal
+    l = [1,2,2,2,2,2,1,2,34,5,66,7]
+    s = list(set(l))
+    print(s)
