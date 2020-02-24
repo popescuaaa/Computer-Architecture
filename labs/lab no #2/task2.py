@@ -25,29 +25,31 @@ import random
 import sys
 from threading import Thread, Lock
 from  functools import reduce
-import time 
-shared_var = 0
+import time
+
+
+# global var
+VAR = 0
+INPUT_LIST = []
 
 class CustomThread(Thread):
-    def __init__(self, thread_id, input_list, lock, shared_var):
+    def __init__(self, thread_id, lock):
         Thread.__init__(self)
         self.thread_id = thread_id
-        self.input_list = input_list
         self.lock = lock
-        self.shared_var = shared_var
-    
+        
     def run(self): 
-        index = random.randint(0, len(self.input_list)-1)
-        time.sleep(random.randint(0, 1))
+        global VAR # play it global
+        index = random.randint(0, len(INPUT_LIST))
+        time.sleep(random.randint(0, 10))
         with lock:
-            curr_elem = self.input_list[index][0]
-            while self.input_list[index][1]:
-                index = random.randint(0, len(self.input_list)-1)
-                curr_elem = self.input_list[index][0]
-            self.input_list[index][1] = True # marked as selected
-            self.shared_var += curr_elem
-
-        print("Current thread: %s has a value for the shared variable equal to: %s" % (self.thread_id, self.shared_var))
+            curr_elem = INPUT_LIST[index][0]
+            while INPUT_LIST[index][1]:
+                index = random.randint(0, len(INPUT_LIST)-1)
+                curr_elem = INPUT_LIST[index][0]
+            INPUT_LIST[index][1] = True # marked as selected
+            VAR += curr_elem
+        print("Current thread: %s has a value for the shared variable equal to: %s" % (self.thread_id, VAR))
 
 
 
@@ -61,19 +63,19 @@ if __name__ == "__main__":
     for entry in input_list:
         input_dict.append([entry, False])
 
+    INPUT_LIST = input_dict
 
     print(" ".join([str(x) for x in input_list]))
 
-    another_shared_var = 0
     lock = Lock()
     thread_array = []
 
     for i in range(num_threads):
-        thread_array.append(CustomThread(i, input_dict, lock, another_shared_var))
+        thread_array.append(CustomThread(i, lock))
     for entry in thread_array:
         entry.start()
     for entry in thread_array:
         entry.join()
 
 
-    print(another_shared_var)
+    print(VAR)
