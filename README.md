@@ -6,9 +6,9 @@ This is a repo consiting of Computer Architecture course assigments and practica
 ---
 # First part: Python Programming
 In this part thre are three main practical sessions:
-- Intro to Python 
-- OOP in Python and Multithreading Programming 1
-- Multithreading Programming 2
+- Intro to Python ✔️
+- OOP in Python and Multithreading Programming 1 ✔️
+- Multithreading Programming 2 
 
 # First assigment: <Python>
 Description:
