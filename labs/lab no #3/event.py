@@ -1,17 +1,16 @@
-from threading import enumerate, Event, Thread
+from threading import enumerate, Event, Thread, Condition
 
 class Master(Thread):
-    def __init__(self, max_work, work_available, result_available):
+    def __init__(self, max_work, sync_elem):
         Thread.__init__(self, name = "Master")
         self.max_work = max_work
-        self.work_available = work_available
-        self.result_available = result_available
+        self.sync_elem = sync_elem
     
     def set_worker(self, worker):
         self.worker = worker
     
     def run(self):
-        for i in xrange(self.max_work):
+        for i in range(self.max_work):
             # generate work
             self.work = i
             # notify worker
@@ -20,8 +19,8 @@ class Master(Thread):
             self.result_available.wait()
             self.result_available.clear()
             if self.get_work() + 1 != self.worker.get_result():
-                print "oops",
-            print "%d -> %d" % (self.work, self.worker.get_result())
+                print ("oops")
+            print ("%d -> %d" % (self.work, self.worker.get_result()))
     
     def get_work(self):
         return self.work
@@ -53,12 +52,15 @@ class Worker(Thread):
 if __name__ ==  "__main__":
     # create shared objects
     terminate = Event()
-    work_available = Event()
-    result_available = Event()
     
+
+    # work_available = Event()
+    # result_available = Event()
+    sync_elem =  Condition()
+
     # start worker and master
-    w = Worker(terminate, work_available, result_available)
-    m = Master(10, work_available, result_available)
+    w = Worker(terminate, sync_elem)
+    m = Master(10, sync_elem)
     w.set_master(m)
     m.set_worker(w)
     w.start()
@@ -73,5 +75,5 @@ if __name__ ==  "__main__":
     w.join()
 
     # print running threads for verification
-    print enumerate()
+    print(enumerate())
 
