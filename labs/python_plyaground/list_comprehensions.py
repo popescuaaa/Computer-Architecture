@@ -2,6 +2,7 @@
     List comprehensions 
 
 '''
+from random import choice
 if __name__ == "__main__":
 
     # calculates without any side effects 
@@ -31,3 +32,7 @@ if __name__ == "__main__":
     l = [1,2,2,2,2,2,1,2,34,5,66,7]
     s = list(set(l))
     print(s)
+
+
+    dna_samples = ''.join(['{}'.format(choice(['A', 'C', 'T', 'G']) for _ in range(1000))])
+    print(dna_samples)

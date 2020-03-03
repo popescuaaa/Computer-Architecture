@@ -1,12 +1,13 @@
-from threading import enumerate, Event, Thread
+from threading import enumerate, Event, Thread, Condition
 
 class Master(Thread):
-    def __init__(self, max_work, work_available, result_available):
+    def __init__(self, max_work, work_condition):
         Thread.__init__(self, name = "Master")
         self.max_work = max_work
-        self.work_available = work_available
-        self.result_available = result_available
-    
+        # any condition needs a flag to perform
+        self.work_condition = work_condition 
+        self.flag = False
+
     def set_worker(self, worker):
         self.worker = worker
     
@@ -15,10 +16,12 @@ class Master(Thread):
             # generate work
             self.work = i
             # notify worker
-            self.work_available.set()
+            self.flag = True
+            self.work_condition.notify()
+
             # get result
-            self.result_available.wait()
-            self.result_available.clear()
+            self.work_condition.wait()
+
             if self.get_work() + 1 != self.worker.get_result():
                 print ("oops")
             print ("%d -> %d" % (self.work, self.worker.get_result()))
@@ -27,25 +30,27 @@ class Master(Thread):
         return self.work
 
 class Worker(Thread):
-    def __init__(self, terminate, work_available, result_available):
+    def __init__(self, terminate, work_condition):
         Thread.__init__(self, name = "Worker")
         self.terminate = terminate
-        self.work_available = work_available
-        self.result_available = result_available
+        self.work_condition = work_condition
 
     def set_master(self, master):
         self.master = master
     
     def run(self):
         while(True):
-            # wait work
-            self.work_available.wait()
-            self.work_available.clear()
-            if(terminate.is_set()): break
-            # generate result
-            self.result = self.master.get_work() + 1
-            # notify master
-            self.result_available.set()
+            with self.work_condition:
+                # wait work
+                if not self.master.flag:
+                    self.work_condition.wait()
+                    self.master.work_condition = False
+
+                if(terminate.is_set()): break
+                # generate result
+                self.result = self.master.get_work() + 1
+                # notify master
+                self.work_condition.notify()
     
     def get_result(self):
         return self.result
@@ -53,12 +58,12 @@ class Worker(Thread):
 if __name__ ==  "__main__":
     # create shared objects
     terminate = Event()
-    work_available = Event()
-    result_available = Event()
+    work_condition =  Condition()
+
     
     # start worker and master
-    w = Worker(terminate, work_available, result_available)
-    m = Master(10, work_available, result_available)
+    w = Worker(terminate, work_condition)
+    m = Master(10, work_condition)
     w.set_master(m)
     m.set_worker(w)
     w.start()
@@ -68,8 +73,9 @@ if __name__ ==  "__main__":
     m.join()
 
     # wait for worker
-    terminate.set()
-    work_available.set()
+    with work_condition:
+        terminate.set()
+        work_condition.notifyAll()
     w.join()
 
     # print running threads for verification

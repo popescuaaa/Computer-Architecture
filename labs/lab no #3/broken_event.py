@@ -45,7 +45,7 @@ class Worker(Thread):
                 break
             # Generate result
             self.result = self.master.get_work() + 1
-            sleep(0.000001)
+            #sleep(1)
             # Notify master
             self.result_available.set()
             self.result_available.clear()
