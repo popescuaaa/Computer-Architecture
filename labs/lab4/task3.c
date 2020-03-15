@@ -31,12 +31,20 @@ int main(void)
     // apoi i2, l2, a2, b2 etc.
     // HINT folositi %p pentru a afisa o adresa
     // ce observati?
+    printf("\n =================== Varibales address =============== \n");
+    printf("i1: %p, l1: %p, a1: %p, b1: %p \n", &i1, &l1, &a1, &b1);
+    printf("i2: %p, l2: %p, a2: %p, b2: %p \n", &i2, &l2, &a2, &b2);
+    printf("i3: %p, l3: %p, a3: %p, b3: %p \n", &i3, &l3, &a3, &b3);
+    printf("i4: %p, l4: %p, a4: %p, b4: %p \n", &i4, &l4, &a4, &b4);
+    printf("i5: %p, l5: %p, a5: %p, b5: %p \n", &i5, &l5, &a5, &b5);
+   
 
     // TODO
     // de dimensiune credeti ca au structurile a si b?
     // afisati dimensiunea lor folosind operatorul sizeof
     // explicati rezultatul
-
+    printf("a: %zd\n", sizeof(struct a));
+    printf("b: %zd\n", sizeof(struct b));
     // TODO
     // alocati un vector cu 10 elemente de tip float aliniat la 2^5 bytes
     

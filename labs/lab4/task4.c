@@ -19,12 +19,23 @@ int main(int argc, char* argv[])
     int64_t c = atoi(argv[3]);  // numarul de iteratii
 
     // TODO alocari si initializari
+    char* array = calloc(n, sizeof(char));
+    if(array == NULL)
+    {
+        printf("error allocating %zd bytes\n", n * sizeof(char));
+        return -2;
+    }
 
     struct timeval start, end;
     gettimeofday(&start, NULL);
 
     // TODO bucla de test
     // in variabila ops calculati numarul de operatii efectuate
+    for(int64_t step = 0; step < c; ++step)
+    {
+        for(int64_t i = 0; i < n; i += l)
+            array[i] += 1;
+    }
 
     int64_t ops = 0;
 
@@ -33,7 +44,7 @@ int main(int argc, char* argv[])
     float elapsed = ((end.tv_sec - start.tv_sec)*1000000.0f + end.tv_usec - start.tv_usec)/1000000.0f;
     printf("%12ld, %12ld, %12f, %12g\n", n, ops, elapsed, ops/elapsed);
 
-    free(a);
+    free(array);
 
     return 0;
 }
