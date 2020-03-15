@@ -36,7 +36,7 @@ int main(int argc, char* argv[])
         for(int64_t i = 0; i < n; i += l)
             a[i] += 1;
     }
-    int64_t ops = 0;
+    int64_t ops = c*(n/l);
 
     gettimeofday(&end, NULL);
 
