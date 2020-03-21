@@ -46,7 +46,7 @@ if __name__ == "__main__":
     samples = generator.generate()
     results = []
     curr_idx = 0
-    FIND_SQ = samples[0][0:100]
+    #FIND_SQ = samples[0][0:100]
     with ThreadPoolExecutor(max_workers = len(samples)) as executor:
         future = executor.submit(external_find_function, curr_idx)
         curr_idx += 1

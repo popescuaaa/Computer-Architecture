@@ -6,7 +6,6 @@ class Master(Thread):
         self.max_work = max_work
         # any condition needs a flag to perform
         self.work_condition = work_condition 
-        self.flag = False
 
     def set_worker(self, worker):
         self.worker = worker
@@ -14,13 +13,11 @@ class Master(Thread):
     def run(self):
         for i in range(self.max_work):
             # generate work
+            self.work_condition.acquire()
+            self.work_condition.notifyAll()
             self.work = i
-            # notify worker
-            self.flag = True
-            self.work_condition.notify()
-
-            # get result
             self.work_condition.wait()
+            self.work_condition.release()
 
             if self.get_work() + 1 != self.worker.get_result():
                 print ("oops")
@@ -41,16 +38,15 @@ class Worker(Thread):
     def run(self):
         while(True):
             with self.work_condition:
-                # wait work
-                if not self.master.flag:
-                    self.work_condition.wait()
-                    self.master.work_condition = False
+                self.work_condition.wait()
+                
 
                 if(terminate.is_set()): break
                 # generate result
                 self.result = self.master.get_work() + 1
                 # notify master
-                self.work_condition.notify()
+                self.work_condition.notifyAll()
+
     
     def get_result(self):
         return self.result
