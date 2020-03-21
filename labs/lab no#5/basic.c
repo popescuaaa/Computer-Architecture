@@ -9,9 +9,9 @@
 
 int main(void)
 {
-	double a[limit][limit];
-	double b[limit][limit];
-	double c[limit][limit];
+	double a[limit * limit];
+	double b[limit * limit];
+	double c[limit * limit];
 	int i;
 	int j;
 	int k;
@@ -26,8 +26,8 @@ int main(void)
 	{
 		for (j = 0; j < limit; j++)
 		{
-			a[i][j] = rand() % elem_limits;
-			b[i][j] = rand() % elem_limits;
+			a[i * limit + j] = rand() % elem_limits;
+			b[i * limit + j] = rand() % elem_limits;
 		}
 	}
 
@@ -39,7 +39,7 @@ int main(void)
 		{
 			for (k = 0; k < limit; ++k)
 			{
-				c[i][j] += a[i][k] * b[k][j];
+				c[i * limit + j] += a[i * limit + k] * b[k * limit + j];
 			}
 		}
 	}

@@ -1,11 +1,11 @@
 CC = gcc
-CFLAGS = -Wall -Wextra -Wpedantic -O0 -lm
+CFLAGS = -Wall -Wextra -Wpedantic -O0 -lm -g
 
-ELFS = const_elim basic loop_reorder_better loop_reorder_worse
+EXECUTABLES = basic loop_reorder cache_optimisation
 
 .PHONY: all clean
 
-all: $(ELFS)
+all: $(EXECUTABLES)
 
 clean:
-	rm -f $(ELFS)
+	rm -f $(EXECUTABLES)
