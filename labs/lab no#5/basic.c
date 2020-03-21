@@ -3,39 +3,43 @@
 #include <stdlib.h>
 #include <sys/time.h>
 
-#define N		1500
+#define limit 			1000
+#define elem_limits		100
 
-double A[N][N];
-double B[N][N];
-double C[N][N];
 
 int main(void)
 {
-	double *aPtr, *bPtr;
-	int i, j, k;
-	int numMatrixElems = N * N;
+	double a[limit][limit];
+	double b[limit][limit];
+	double c[limit][limit];
+	int i;
+	int j;
+	int k;
+	time_t t;
+	
+	/* for performace evaluation purpose only */
 	struct timeval start, end;
 
-	srand(42);
+	srand((unsigned) time(&t));
 
-	aPtr = A[0];
-	bPtr = B[0];
-
-	for (i = 0; i != numMatrixElems; ++i, ++aPtr, ++bPtr)
+	for (i = 0; i < limit; i++)
 	{
-		*aPtr = (double)rand() / RAND_MAX * 2.0 - 1.0;
-		*bPtr = (double)rand() / RAND_MAX * 2.0 - 1.0;
+		for (j = 0; j < limit; j++)
+		{
+			a[i][j] = rand() % elem_limits;
+			b[i][j] = rand() % elem_limits;
+		}
 	}
 
 	gettimeofday(&start, NULL);
 
-	for (i = 0; i != N; ++i)
+	for (i = 0; i < limit; i++)
 	{
-		for (j = 0; j != N; ++j)
+		for (j = 0; j < limit; j++)
 		{
-			for (k = 0; k != N; ++k)
+			for (k = 0; k < limit; ++k)
 			{
-				C[i][j] += A[i][k] * B[k][j];
+				c[i][j] += a[i][k] * b[k][j];
 			}
 		}
 	}
@@ -44,7 +48,9 @@ int main(void)
 
 	float elapsed = ((end.tv_sec - start.tv_sec) * 1000000.0f
 		+ end.tv_usec - start.tv_usec) / 1000000.0f;
-	printf("Time for N = %d is %f seconds.\n", N, elapsed);
+
+	printf("Time for limit = %d elems per line / column in matrix \
+			is %f seconds.\n", limit, elapsed);
 
 	return 0;
 }
