@@ -5,7 +5,7 @@ Computer Systems Architecture Course
 Assignment 1
 March 2020
 """
-
+from threading import Lock
 
 class Marketplace:
     """
@@ -19,13 +19,22 @@ class Marketplace:
         :type queue_size_per_producer: Int
         :param queue_size_per_producer: the maximum size of a queue associated with each producer
         """
-        pass
+        self.limit = queue_size_per_producer
+        self.global_id = 0
+        self.marketplace_producers_db = {}  # < producer id, list (max_size)>
+        self.marketplace_consumers_db = {}  # < cart_id, shopping_list>
+        self.carts = list()
+        self.current_index_cart = 0
+
+    def get_db_status(self):
+        return len(self.marketplace_db)
 
     def register_producer(self):
         """
         Returns an id for the producer that calls this.
         """
-        pass
+        self.global_id += 1
+        return self.global_id
 
     def publish(self, producer_id, product):
         """
@@ -39,7 +48,17 @@ class Marketplace:
 
         :returns True or False. If the caller receives False, it should wait and then try again.
         """
-        pass
+        if producer_id in self.marketplace_producers_db:
+            producer_list = self.marketplace_producers_db[producer_id]
+            if len(producer_list) < self.limit:
+                self.marketplace_producers_db[producer_id].append(product)
+            else:
+                return False
+            return True
+        else:
+            self.marketplace_producers_db[producer_id] = list()
+            self.marketplace_producers_db[producer_id].append(product)
+        return True
 
     def new_cart(self):
         """
@@ -47,7 +66,11 @@ class Marketplace:
 
         :returns an int representing the cart_id
         """
-        pass
+        self.current_index_cart += 1
+        cart_id = self.current_index_cart
+        self.marketplace_consumers_db[cart_id] = list()
+
+        return self.current_index_cart
 
     def add_to_cart(self, cart_id, product):
         """
@@ -61,7 +84,15 @@ class Marketplace:
 
         :returns True or False. If the caller receives False, it should wait and then try again
         """
-        pass
+        for producer_id in self.marketplace_producers_db:
+            current_list = self.marketplace_producers_db[producer_id]
+            if product in current_list:
+                self.marketplace_consumers_db[cart_id].append(product)
+                self.marketplace_producers_db[producer_id].remove(product)
+
+                return True
+
+        return False
 
     def remove_from_cart(self, cart_id, product):
         """
@@ -73,8 +104,13 @@ class Marketplace:
         :type product: Product
         :param product: the product to remove from cart
         """
-        pass
-
+        self.marketplace_consumers_db[cart_id].remove(product)
+        
+        for producer_id in self.marketplace_producers_db:
+            current_list = self.marketplace_producers_db[producer_id]
+            if len(current_list) < self.limit:
+                self.marketplace_producers_db[producer_id].append(product)
+        
     def place_order(self, cart_id):
         """
         Return a list with all the products in the cart.
@@ -82,4 +118,4 @@ class Marketplace:
         :type cart_id: Int
         :param cart_id: id cart
         """
-        pass
+        return self.marketplace_consumers_db[cart_id]

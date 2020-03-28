@@ -1,0 +1,1 @@
+[{'type': 'add', 'product': Tea(name='Linden', price=9, type='Herbal'), 'quantity': 1}, {'type': 'add', 'product': Coffee(name='Indonezia', price=1, acidity=5.05, roast_level='MEDIUM'), 'quantity': 3}, {'type': 'remove', 'product': Coffee(name='Indonezia', price=1, acidity=5.05, roast_level='MEDIUM'), 'quantity': 1}]
