@@ -6,6 +6,7 @@ Assignment 1
 March 2020
 """
 from threading import Lock
+from copy import deepcopy
 
 class Marketplace:
     """
@@ -86,10 +87,10 @@ class Marketplace:
         """
         for producer_id in self.marketplace_producers_db:
             current_list = self.marketplace_producers_db[producer_id]
+           
             if product in current_list:
                 self.marketplace_consumers_db[cart_id].append(product)
                 self.marketplace_producers_db[producer_id].remove(product)
-
                 return True
 
         return False
@@ -104,13 +105,14 @@ class Marketplace:
         :type product: Product
         :param product: the product to remove from cart
         """
-        self.marketplace_consumers_db[cart_id].remove(product)
-        
-        for producer_id in self.marketplace_producers_db:
-            current_list = self.marketplace_producers_db[producer_id]
-            if len(current_list) < self.limit:
-                self.marketplace_producers_db[producer_id].append(product)
-        
+        if product in self.marketplace_consumers_db[cart_id]:
+            self.marketplace_consumers_db[cart_id].remove(product)
+           
+            for producer_id in self.marketplace_producers_db:
+                current_list = self.marketplace_producers_db[producer_id]
+                if len(current_list) < self.limit // 2:
+                    self.marketplace_producers_db[producer_id].append(product)
+
     def place_order(self, cart_id):
         """
         Return a list with all the products in the cart.

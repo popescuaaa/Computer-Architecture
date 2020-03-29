@@ -30,7 +30,6 @@ class Producer(Thread):
         self.products = products
         self.marketplace = marketplace
         self.republish_wait_time = republish_wait_time
-        self.kwargs = kwargs
 
         self.current_product_index = 0
        
@@ -47,7 +46,7 @@ class Producer(Thread):
             product_specific_sleep = product[2]
 
             while product_quantity > 0:
-                result = self.marketplace.publish(self.producer_id, product)
+                result = self.marketplace.publish(self.producer_id, product_spec)
                 if (result == True):
                     product_quantity -= 1
                     sleep(product_specific_sleep)
