@@ -13,11 +13,11 @@ OP_TYPE = 'type'
 OP_PRODUCT = 'product'
 OP_QUANTITY = 'quantity'
 
+
 class Consumer(Thread):
     """
     Class that represents a consumer.
     """
-
     def __init__(self, carts, marketplace, retry_wait_time, **kwargs):
         """
         Constructor.
@@ -53,7 +53,8 @@ class Consumer(Thread):
             current_index_set = self.current_index_op_set
             while current_index_op < len(self.carts[current_index_set]):
 
-                operation_dict = self.carts[current_index_set][current_index_op]
+                operation_dict = self.carts[current_index_set][
+                    current_index_op]
 
                 op_type = operation_dict[OP_TYPE]
                 op_product = operation_dict[OP_PRODUCT]
@@ -64,7 +65,8 @@ class Consumer(Thread):
                     q_i = 0
                     while q_i < op_quantity:
 
-                        result = self.marketplace.add_to_cart(self.consumer_id, op_product)
+                        result = self.marketplace.add_to_cart(
+                            self.consumer_id, op_product)
                         if not result:
 
                             sleep(self.retry_wait_time)
@@ -74,7 +76,8 @@ class Consumer(Thread):
                     q_i = 0
                     while q_i < op_quantity:
 
-                        self.marketplace.remove_from_cart(self.consumer_id, op_product)
+                        self.marketplace.remove_from_cart(
+                            self.consumer_id, op_product)
                         q_i += 1
 
                 current_index_op += 1
@@ -84,4 +87,3 @@ class Consumer(Thread):
 
         for product in cart_products:
             print('{} bought {}'.format(Thread.getName(self), product))
-        
