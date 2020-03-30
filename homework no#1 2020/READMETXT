@@ -1,0 +1,60 @@
+=== Assignment no. #1 Multiple Producer / Consumer ===
+
+== General implementation model ==
+
+Main classes: 
+    > Producer
+    > Consumer
+    > Marketplace
+In the following paragraphs I will explain the structure of the classes: 
+
+Producer:
+
+    The main goal of this class is to emit products for the shared resource 
+    called Marketplace. Here, if the producer has prodiced more than the
+    Marketplace's queue capcity, then the instance has to wait a specified time.
+    The process of production is continuous for any producer.
+    The producers identifies itself by an id generator that is lock protected 
+    in the Marketplace.
+
+Consumer:
+
+    The main goal is to consume; so basically just to add to specific cart 
+    any product that is on the Marketplace. If the product is not on the 
+    Marketplace the consumer must wait a specified amount of time. If the
+    consumer wants to consume or print the products of the shopping cart
+    it will call a method in the Marketplace and retrives the content of 
+    its card.
+
+    If the consumer will remove a product from its cart the product is added
+    back the to specifc producer's list; this process is not concerned by 
+    producer's list size.
+
+
+== Concurrency problems? How I coped with them ==
+
+    I used two lock elements from the threading package.
+    They are used for id retriving actions, one for the poroducer id and one 
+    for the cart id.
+
+    The rest of the operations are said to be thread-safe so they don't need
+    and external synchronization elements from the threading package.
+
+== Problems ==
+
+    One of the main problems was the fact the if one customer removes one product
+    from its cart the product is said to be 'back on the Marketplace' which is pretty
+    unclear so I considered that this means that the product is of course accesible,
+    but not that it will goes back the producer, it could go everywhere and nowhere :)
+     
+    Then I changed to the current verion that take in consideration the fact that 
+    will go back to the producer's list.
+
+== Formatting tools ==
+    
+    Because of the fact that the style for this homework is pep8 like I used a Formatting
+    tool for python code called ypaf which is open source and it works for google style and
+    pep8 style. 
+
+== Conclusion ==
+    Pretty cool homework
