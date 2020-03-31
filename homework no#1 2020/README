@@ -20,3 +20,6 @@ Directorul test-gen contine scripturi pentru generarea testelor.
  * generate_tests.sh - genereaza cele 10 teste oferite in schelet si pentru care se va oferi punctajul temei
 
 Puteti sa testati tema si pe teste proprii create folosind scriptul test_generator.py
+
+### Formatare de cod 
+> https://github.com/google/yapf

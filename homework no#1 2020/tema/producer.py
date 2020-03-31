@@ -8,7 +8,15 @@ March 2020
 from threading import Thread
 from time import sleep
 
+PRODUCT_SPECS = 0
+PRODUCT_QUANTITY = 1
+PRODUCT_SLEEP_TIME = 2
+
 class Producer(Thread):
+    """
+    Class that represents a consumer.
+    """
+
     def __init__(self, products, marketplace, republish_wait_time, **kwargs):
         """
         Constructor.
@@ -26,31 +34,34 @@ class Producer(Thread):
         @type kwargs:
         @param kwargs: other arguments that are passed to the Thread's __init__()
         """
+
         Thread.__init__(self, **kwargs)
         self.products = products
         self.marketplace = marketplace
         self.republish_wait_time = republish_wait_time
 
         self.current_product_index = 0
-       
-        self.producer_id = self.marketplace.register_producer()
-    
+
+        with self.marketplace.producer_id_lock:
+            self.producer_id = self.marketplace.register_producer()
 
     def run(self):
+        limit = len(self.products)
         while True:
-            product = self.products[self.current_product_index % len(self.products)]
+            product = self.products[self.current_product_index % limit]
             self.current_product_index += 1
 
-            product_spec = product[0]
-            product_quantity = product[1]
-            product_specific_sleep = product[2]
+            product_specs = product[PRODUCT_SPECS]
+            product_quantity = product[PRODUCT_QUANTITY]
+            product_sleep_time = product[PRODUCT_SLEEP_TIME]
 
             while product_quantity > 0:
-                result = self.marketplace.publish(self.producer_id, product_spec)
-                if (result == True):
+                result = self.marketplace.publish(self.producer_id, product_specs)
+
+                if result:
                     product_quantity -= 1
-                    sleep(product_specific_sleep)
+                    sleep(product_sleep_time)
+
                 else:
                     sleep(self.republish_wait_time)
                     continue
-            
