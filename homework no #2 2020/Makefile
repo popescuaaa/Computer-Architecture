@@ -2,8 +2,8 @@ CC=gcc
 CFLAGS=-Wall -Werror -O0
 OPT_CFLAGS=-Wall -Werror -O3
 EXTRA_OPT_CFLAGS=
-LIBDIRS=
-LIBS=
+LIBDIRS=-L/usr/lib64/atlas
+LIBS=-lsatlas
 
 all: compare tema2_blas tema2_neopt tema2_opt_m tema2_opt_f tema2_opt_f_extra
 
