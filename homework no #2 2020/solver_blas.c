@@ -25,7 +25,7 @@ double* my_solver(int N, double *A, double *B) {
 	 * 		CblasRowMajor, 
 	 * 		CblasNoTrans, 
 	 * 		CblasNoTrans,
-     *  	m, 
+     	 *	  	m, 
 	 * 		n, 
 	 * 		k, 
 	 * 		alpha, 
@@ -37,6 +37,11 @@ double* my_solver(int N, double *A, double *B) {
 	 * 		C,
 	 * 		n);
 	 **/ 
+	double* B_At;
+	double* A2;
+	double* A2_B;
+	double* R;
+	
 	posix_memalign((void**) &B_At, 64, N * N * sizeof(double));
 	if (B_At == NULL)
 		exit(BAD_ALLOC);
@@ -57,57 +62,57 @@ double* my_solver(int N, double *A, double *B) {
 	double beta = 0.0;
 
 	/*  B * At */
-	clab_dgemm(
-		CBlasRowMajor,
+	cblas_dgemm(
+		CblasRowMajor,
 		CblasNoTrans,
 		CblasTrans,
-		&N, 
-		&N,
-		&N,  
-		&alpha, 
+		N, 
+		N,
+		N,  
+		alpha, 
 		B, 
-		&N,
+		N,
 		A, 
-		&N,
-		&beta, 
+		N,
+		beta, 
 		B_At, 
-		&N
+		N
 	);
 
 	/* A2 */
 	cblas_dgemm(
-		CBlasRowMajor,
+		CblasRowMajor,
 		CblasNoTrans,
 		CblasNoTrans,
-		&N, 
-		&N,
-		&N,  
-		&alpha, 
+		N, 
+		N,
+		N,  
+		alpha, 
 		A, 
-		&N,
+		N,
 		A, 
-		&N,
-		&beta, 
+		N,
+		beta, 
 		A2, 
-		&N
+		N
 	);
 
 	/* A2 * B */
 	cblas_dgemm(
-		CBlasRowMajor,
+		CblasRowMajor,
 		CblasNoTrans,
 		CblasTrans,
-		&N, 
-		&N,
-		&N,  
-		&alpha, 
+		N, 
+		N,
+		N,  
+		alpha, 
 		A2, 
-		&N,
+		N,
 		B, 
-		&N,
-		&beta, 
+		N,
+		beta, 
 		A2_B, 
-		&N
+		N
 	);
 	
 	R = matrix_add(N, B_At, A2_B);

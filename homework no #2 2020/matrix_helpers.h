@@ -59,7 +59,7 @@ double* matrix_add(int N, double* A, double* B)
  * @return: The matrix A and B substraction result
  * 
  **/ 
-double* matrix_add(int N, double* A, double* B)
+double* matrix_substract(int N, double* A, double* B)
 {   
     size_t li;
     size_t ci;

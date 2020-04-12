@@ -13,13 +13,17 @@ make
 
 #------------- Execution for BLAS ---------------------
 #
+chmod 777 ./tema2_blas
+chmod 777 ./tema2_neopt
+chmod 777 ./tema2_opt_m
+
 # Test blas flavour
 ./tema2_blas inpit &> blas.out
 
 #------------------- Crectness -------------------------
 ./compare out1 /export/asc/tema2/out1 0.01
 ./compare out2 /export/asc/tema2/out2 0.01
-./compare out3 /export/asc/tema2/out2 0.01
+./compare out3 /export/asc/tema2/out3 0.01
 
 # ------------- Execution for NEOPT --------------------
 #
@@ -29,7 +33,7 @@ make
 #------------------- Crectness -------------------------
 ./compare out1 /export/asc/tema2/out1 0.01
 ./compare out2 /export/asc/tema2/out2 0.01
-./compare out3 /export/asc/tema2/out2 0.01
+./compare out3 /export/asc/tema2/out3 0.01
 
 # ------------- Execution for OPT_M --------------------
 #
@@ -39,7 +43,7 @@ make
 #------------------- Crectness -------------------------
 ./compare out1 /export/asc/tema2/out1 0.01
 ./compare out2 /export/asc/tema2/out2 0.01
-./compare out3 /export/asc/tema2/out2 0.01
+./compare out3 /export/asc/tema2/out3 0.01
 
 # ------------- Execution for OPT_F --------------------
 #
@@ -49,7 +53,7 @@ make
 #------------------- Crectness -------------------------
 ./compare out1 /export/asc/tema2/out1 0.01
 ./compare out2 /export/asc/tema2/out2 0.01
-./compare out3 /export/asc/tema2/out2 0.01
+./compare out3 /export/asc/tema2/out3 0.01
 
 # ------------- Execution for OPT_F_EXTRA --------------
 #
@@ -59,4 +63,4 @@ make
 #------------------- Crectness -------------------------
 ./compare out1 /export/asc/tema2/out1 0.01
 ./compare out2 /export/asc/tema2/out2 0.01
-./compare out3 /export/asc/tema2/out2 0.01
+./compare out3 /export/asc/tema2/out3 0.01
