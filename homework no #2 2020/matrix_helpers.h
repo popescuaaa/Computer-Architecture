@@ -12,13 +12,15 @@
  * 
  **/ 
 double* transpose(int N, double *M) 
-{
+{   
+    size_t li;
+    size_t ci;
     double *T = (double*) malloc(N * N * sizeof(double));
     if (T == NULL)
         exit(BAD_ALLOC);
 
-    for (size_t li = 0; li < N; li++) {
-        for (size_t ci = 0; ci < N; ci++) {
+    for (li = 0; li < N; li++) {
+        for (ci = 0; ci < N; ci++) {
             T[li * N + ci] = M[ci * N + li];
         }
     }
@@ -35,11 +37,14 @@ double* transpose(int N, double *M)
  **/ 
 double* matrix_add(int N, double* A, double* B)
 {
+    size_t li;
+    size_t ci;
     double* R = (double *) malloc(N * N * sizeof(double));
     if (R == NULL)
         exit(BAD_ALLOC);
-    for (size_t li = 0; li < N; li++) {
-        for (size_t ci = 0; ci < N; ci++) {
+    
+    for (li = 0; li < N; li++) {
+        for (ci = 0; ci < N; ci++) {
             R[li * N + ci] = A[li * N + ci] + B[li * N + ci];   
         }
     }
@@ -55,12 +60,15 @@ double* matrix_add(int N, double* A, double* B)
  * 
  **/ 
 double* matrix_add(int N, double* A, double* B)
-{
+{   
+    size_t li;
+    size_t ci;
     double* R = (double *) malloc(N * N * sizeof(double));
     if (R == NULL)
         exit(BAD_ALLOC);
-    for (size_t li = 0; li < N; li++) {
-        for (size_t ci = 0; ci < N; ci++) {
+    
+    for (li = 0; li < N; li++) {
+        for (ci = 0; ci < N; ci++) {
             R[li * N + ci] = A[li * N + ci] - B[li * N + ci];   
         }
     }
@@ -78,13 +86,17 @@ double* matrix_add(int N, double* A, double* B)
  * 
  **/ 
 double* multiply_neopt(int N, double *A, double *B) 
-{
+{   
+    size_t li;
+    size_t ci;
+    size_t hi;
     double *R = (double *) malloc(N * N * sizeof(double));
     if (R == NULL)
         exit(BAD_ALLOC);
-    for (size_t li = 0; li < N; li++) {
-      for (size_t ci = 0; ci < N; ci++) {
-        for (size_t hi = 0; hi < N; hi++) {
+
+    for (li = 0; li < N; li++) {
+      for (ci = 0; ci < N; ci++) {
+        for (hi = 0; hi < N; hi++) {
               R[li * N  + ci] = A[li * N + hi] * B[hi * N + ci];
         }
       }
@@ -111,6 +123,8 @@ double* multiply_opt(int N, double* A, double* B)
 
     /* The submatrixes size computation */
     int n = N / 2;
+    size_t li;
+    size_t ci;
 
     /* The workflow matrixes for computation result */
     double* M1;
@@ -168,32 +182,32 @@ double* multiply_opt(int N, double* A, double* B)
 
     /* Populate the submatrixes */
     /* Quadrant 1 */
-    for (size_t li = 0; li < n; li++) {
-        for (size_t ci = 0; ci < n; ci++) {
+    for (li = 0; li < n; li++) {
+        for (ci = 0; ci < n; ci++) {
             A11[li * n + ci] = A[li * n + ci];
             B11[li * n + ci] = B[li * n + ci];   
         }
     }
     
     /* Quadrant 2 */
-    for (size_t li = 0; li < n; li++) {
-        for (size_t ci = n; ci < N; ci++) {
+    for (li = 0; li < n; li++) {
+        for (ci = n; ci < N; ci++) {
             A12[li * n + ci] = A[li * n + ci];
             B12[li * n + ci] = B[li * n + ci];   
         }
     }
 
     /* Quadrant 3 */
-    for (size_t li = n; li < N; li++) {
-        for (size_t ci = 0; ci < n; ci++) {
+    for (li = n; li < N; li++) {
+        for (ci = 0; ci < n; ci++) {
             A21[li * n + ci] = A[li * n + ci];
             B21[li * n + ci] = B[li * n + ci];   
         }
     }
 
     /* Quadrant 4 */
-    for (size_t li = n; li < N; li++) {
-        for (size_t ci = n; ci < N; ci++) {
+    for (li = n; li < N; li++) {
+        for (ci = n; ci < N; ci++) {
             A22[li * n + ci] = A[li * n + ci];
             B22[li * n + ci] = B[li * n + ci];   
         }
@@ -216,8 +230,8 @@ double* multiply_opt(int N, double* A, double* B)
     /* Compute the Result matrix; each quadrant */
     /* Quadrant 1 */
     int C11_index = 0;
-    for (size_t li = 0; li < n; li++) {
-        for (size_t ci = 0; ci < n; ci++) {
+    for (li = 0; li < n; li++) {
+        for (ci = 0; ci < n; ci++) {
            R[li * n + ci] = C11[C11_index];
            C11_index++;
         }
@@ -225,8 +239,8 @@ double* multiply_opt(int N, double* A, double* B)
     
     /* Quadrant 2 */
     int C12_index = 0;
-    for (size_t li = 0; li < N; li++) {
-        for (size_t ci = n; ci < N; ci++) {
+    for (li = 0; li < N; li++) {
+        for (ci = n; ci < N; ci++) {
            R[li * n + ci] = C12[C12_index];
            C12_index++;
         }
@@ -234,8 +248,8 @@ double* multiply_opt(int N, double* A, double* B)
 
     /* Quadrant 3 */
     int C21_index = 0;
-    for (size_t li = n; li < N; li++) {
-        for (size_t ci = 0; ci < n; ci++) {
+    for (li = n; li < N; li++) {
+        for (ci = 0; ci < n; ci++) {
             R[li * n + ci] = C21[C21_index];
             C21_index++;
         }
@@ -243,8 +257,8 @@ double* multiply_opt(int N, double* A, double* B)
 
     /* Quadrant 4 */
     int C22_index = 0;
-    for (size_t li = n; li < N; li++) {
-        for (size_t ci = n; ci < N; ci++) {
+    for (li = n; li < N; li++) {
+        for (ci = n; ci < N; ci++) {
             R[li * n + ci] = C22[C22_index];
             C22_index++;
         }

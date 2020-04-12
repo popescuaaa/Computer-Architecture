@@ -1,0 +1,5 @@
+{
+    "files.associations": {
+        "cblas.h": "c"
+    }
+}
