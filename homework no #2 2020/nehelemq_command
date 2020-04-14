@@ -1,1 +1,0 @@
-qsub -cwd -q ibm-nehalem.q -b n test_worker.sh

@@ -23,7 +23,7 @@ __global__ void kernel_parity_id(int *a, int N) {
 // place.
 __global__ void kernel_block_id(int *a, int N) {
     unsigned int local_index = threadIdx.x + blockDim.x * blockIdx.x;
-    if (local_index < n) {
+    if (local_index < N) {
     	a[local_index] = blockIdx.x;
   	}
 }
@@ -34,7 +34,7 @@ __global__ void kernel_block_id(int *a, int N) {
 // place.
 __global__ void kernel_thread_id(int *a, int N) {
     unsigned int local_index = threadIdx.x + blockDim.x * blockIdx.x;
-    if (local_index < n) {
+    if (local_index < N) {
     	a[local_index] = threadIdx.x;
   	}
 }
