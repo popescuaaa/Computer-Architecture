@@ -1,0 +1,32 @@
+make: Nothing to be done for `all'.
+Matrixes differ on index [0, 0]. Expected -66.01905923 got 158.51863821
+./compare out1 /export/asc/tema2/out1 Incorrect results!
+Matrixes differ on index [0, 0]. Expected 520.88979978 got 352.39122767
+./compare out2 /export/asc/tema2/out2 Incorrect results!
+Matrixes differ on index [0, 0]. Expected 295.84440498 got 351.80810426
+./compare out3 /export/asc/tema2/out3 Incorrect results!
+Matrixes differ on index [0, 0]. Expected -0.04778812 got 158.51863821
+./compare out1 /export/asc/tema2/out1 Incorrect results!
+Matrixes differ on index [0, 0]. Expected -0.04159031 got 352.39122767
+./compare out2 /export/asc/tema2/out2 Incorrect results!
+Matrixes differ on index [0, 0]. Expected -0.10236406 got 351.80810426
+./compare out3 /export/asc/tema2/out3 Incorrect results!
+test_worker.sh: line 41: 91362 Aborted                 (core dumped) ./tema2_opt_m input &>opt_m.out
+Matrixes differ on index [0, 0]. Expected -0.04778812 got 158.51863821
+./compare out1 /export/asc/tema2/out1 Incorrect results!
+Matrixes differ on index [0, 0]. Expected -0.04159031 got 352.39122767
+./compare out2 /export/asc/tema2/out2 Incorrect results!
+Matrixes differ on index [0, 0]. Expected -0.10236406 got 351.80810426
+./compare out3 /export/asc/tema2/out3 Incorrect results!
+Matrixes differ on index [0, 0]. Expected -0.04778812 got 158.51863821
+./compare out1 /export/asc/tema2/out1 Incorrect results!
+Matrixes differ on index [0, 0]. Expected -0.04159031 got 352.39122767
+./compare out2 /export/asc/tema2/out2 Incorrect results!
+Matrixes differ on index [0, 0]. Expected -0.10236406 got 351.80810426
+./compare out3 /export/asc/tema2/out3 Incorrect results!
+Matrixes differ on index [0, 0]. Expected -0.04778812 got 158.51863821
+./compare out1 /export/asc/tema2/out1 Incorrect results!
+Matrixes differ on index [0, 0]. Expected -0.04159031 got 352.39122767
+./compare out2 /export/asc/tema2/out2 Incorrect results!
+Matrixes differ on index [0, 0]. Expected -0.10236406 got 351.80810426
+./compare out3 /export/asc/tema2/out3 Incorrect results!
