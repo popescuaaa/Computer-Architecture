@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include "utils/utils.h"
+#define Max 1000
 
 __global__ void kernel_gflops(float* a, float* b, int N) {
 	int row = threadIdx.y;
@@ -10,7 +11,11 @@ __global__ void kernel_gflops(float* a, float* b, int N) {
 	// Execute at least two floating point operations (e.g. +, -, *, /)
 	// on the value from array a at index idx and
 	// store the result in array b at index idx. 
-	// NOTE: Do not change value directly in array a.
+    // NOTE: Do not change value directly in array a.
+    for (int i = 0; i <= Max; ++i)
+	{
+		b[idx] = a[idx] * 4.f + a[idx] / 8.f - + 16.f * a[idx] - 32.f / a[idx];
+	}
 }
 
 int main(void) {
@@ -48,6 +53,8 @@ int main(void) {
     // ~TODO~
     // Create two cuda events (start and stop)
     // by using the cudaEventCreate function.
+    cudaEventCreate(&start);
+    cudaEventCreate(&stop);
 
     cudaEventRecord(start);
     kernel_gflops<<<size / 256, 256>>> (device_a, device_b, N);
@@ -61,7 +68,7 @@ int main(void) {
     // ~TODO~
     // Set num_ops to the number of floating point operations
     // done in the kernel multiplied with the size of the matrix.
-    long num_ops = 0;
+    long num_ops = 10000 * (long)size; // what number is suitable
 
     float gflops = (float) num_ops / seconds / 1e+9;
     printf("GFLOPS: %.3f\n", gflops);
