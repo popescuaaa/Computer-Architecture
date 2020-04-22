@@ -10,41 +10,63 @@
 __global__ void matrix_multiply_simple(float *ma, float *mb, float *mc, size_t width)
 {
 	//TODO: calculate the row & column index of the element
+	int row = blockIdx.y * blockDim.y + threadIdx.y;
+	int col = blockIdx.x * blockDim.x + threadIdx.x;
+	float res = 0;
 
 	//TODO: do dot product between row of ma and column of mb
+	for (int i = 0; i < width; ++i)
+	{
+		res += ma[row * width + i] * mb[i * width + col];
+	}
 
 	//TODO: write result in mc
+	mc[row * width + col] = res;
 }
 
 // Task 2 - optimized matrix multiplication
 __global__ void matrix_multiply(float *ma, float *mb, float *mc, size_t width)
 {
 	int tx = threadIdx.x, ty = threadIdx.y;
-	int bx = blockIdx.x,  by = blockIdx.y;
 
 	//TODO: allocate 2D tiles in __shared__ memory
+	__shared__ float ma_tile[TILE_WIDTH][TILE_WIDTH];
+	__shared__ float mb_tile[TILE_WIDTH][TILE_WIDTH];
 
 	//TODO: calculate the row & column index of the element
+	int row = blockIdx.y * blockDim.y + ty;
+	int col = blockIdx.x * blockDim.x + tx;
 
 	float result = 0;
 
 	// loop over the tiles of the input
-	for(int t = 0; t < width/TILE_WIDTH; ++t) {
-	
-		//TODO: load tiles into __shared__ memory allocated before
-		
-		//TODO:
+	for(int t = 0; t < width / TILE_WIDTH; ++t) {
+		// TODO: load tiles into __shared__ memory allocated beforema_tile
+		ma_tile[ty][tx] = ma[row * width + t * TILE_WIDTH + tx];
+		mb_tile[ty][tx] = mb[(t * TILE_WIDTH + ty) * width + col];
+
+		// TODO:
 		// wait until all data is loaded before allowing
 		// any thread in this block to continue
+		__syncthreads();
 
-		//TODO: do dot product between row of tile from ma and column of tile from mb
+		// TODO: do dot product between row of tile from ma and column of tile from mb
 
-		//TODO:
+		// ar fi fost misto sa mearga direct asa :(
+		// matrix_multiply_simple<<<gridDim, blockDim>>>(ma_tile, mb_tile, mc, TILE_WIDTH);
+		for (int i = 0; i != TILE_WIDTH; ++i)
+		{
+			result += ma_tile[ty][i] * mb_tile[i][tx];
+		}
+
+		// TODO:
 		// wait until all data is loaded before allowing
 		// any thread in this block to continue
+		__syncthreads();
 	}
 
 	//TODO: write result in mc
+	mc[row * width + col] = result;
 }
 
 int main(void)
@@ -78,6 +100,8 @@ int main(void)
 	
 	//TODO: create CUDA events for measuring kernel time
 	cudaEvent_t launch_begin, launch_end;
+	cudaEventCreate(&launch_begin);
+	cudaEventCreate(&launch_end);
 
 	// time many kernel launches and take the average time
 	const size_t num_launches = 100;
@@ -86,13 +110,16 @@ int main(void)
 	
 	for(int i = 0; i < num_launches; ++i) {
 		//TODO: record CUDA event before and after the kernel launch
-
+		cudaEventRecord(launch_begin, 0);
 		matrix_multiply_simple<<<num_blocks,block_size>>>(device_a, device_b, device_c, n);
+		cudaEventRecord(launch_end, 0);
 
 		//TODO: Wait for launch_end event to complete
+		cudaEventSynchronize(launch_end);
 
 		//TODO: measure the time spent in the kernel
 		float time = 0;
+		cudaEventElapsedTime(&time, launch_begin, launch_end);
 
 		average_simple_time += time;
 	}
@@ -105,15 +132,19 @@ int main(void)
 	// time many kernel launches and take the average time
 	float average_optimized_time = 0;
 	std::cout << "Timing optimized implementation...";
+
 	for(int i = 0; i < num_launches; ++i) {
 		//TODO: record CUDA event before and after the kernel launch
-		
+		cudaEventRecord(launch_begin, 0);
 		matrix_multiply<<<num_blocks,block_size>>>(device_a, device_b, device_c, n);
+		cudaEventRecord(launch_end, 0);
 
 		//TODO: Wait for launch_end event to complete
+		cudaEventSynchronize(launch_end);
 		
 		//TODO: measure the time spent in the kernel
 		float time = 0;
+		cudaEventElapsedTime(&time, launch_begin, launch_end);
 
 		average_optimized_time += time;
 	}
@@ -143,4 +174,3 @@ int main(void)
 
 	return 0;
 }
-
