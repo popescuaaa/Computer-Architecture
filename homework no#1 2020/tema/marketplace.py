@@ -33,7 +33,7 @@ class Marketplace:
 
         # the only explicit syncronization elements are the locks
         # for id retriving actions for both entities
-
+ 
         self.producer_id_lock = Lock()
         self.consumer_id_lock = Lock()
 
