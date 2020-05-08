@@ -27,7 +27,7 @@
  **/
 
 __device__ int getHash(int data, int limit) {
-    return ((long)abs(data) * primeList[77]) % primeList[7] % limit;
+    return ((long)abs(data) * 805306457) % 196613 % limit;
 }
 
 __global__ void kernelInsertEntry(
