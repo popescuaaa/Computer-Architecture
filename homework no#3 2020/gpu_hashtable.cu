@@ -146,7 +146,7 @@ GpuHashTable::~GpuHashTable() {
 void GpuHashTable::reshape(int numBucketsReshape) {
 
     HashTableEntry *hashTableBucketsReshaped;
-    newLimitSize = numBucketsReshape;
+    int newLimitSize = numBucketsReshape;
 
     cudaMallocManaged(&hashTableBucketsReshaped,
                       newLimitSize * BUCKET_SIZE * sizeof(HashTableEntry));
