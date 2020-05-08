@@ -242,6 +242,7 @@ int* GpuHashTable::getBatch(int* keys, int numKeys) {
             hashTableBuckets);
 
     cudaDeviceSynchronize();
+
     cudaFree(deviceKeys);
     return values;
 }
