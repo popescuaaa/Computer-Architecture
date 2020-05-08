@@ -45,7 +45,6 @@ __global__ void kernelInsertEntry(
     int currentValue = values[idx];
     int hash = getHash(currentKey, limitSize);
     int status = DEFAULT_STATUS;
-    bool success = false;
 
     for (int i = 0; i < BUCKET_SIZE; i++) {
         status = atomicCAS(&hashTableBuckets[hash * BUCKET_SIZE + i].HashTableEntryKey,
@@ -56,14 +55,8 @@ __global__ void kernelInsertEntry(
             /* Add new or replace */
             hashTableBuckets[hash * BUCKET_SIZE + i].HashTableEntryKey = currentKey;
             hashTableBuckets[hash * BUCKET_SIZE + i].HashTableEntryValue = currentValue;
-            success = true;
             return;
         }
-    }
-
-    if (!success) {
-        std::cerr << "[GPU] There is not enough space in the current bucket!\n";
-        std::cerr << "[GPU] The bucket with problems is: " << hash << "\n";
     }
 
 }
