@@ -79,12 +79,7 @@ int hash2(int data, int limit) {
 int hash3(int data, int limit) {
 	return ((long)abs(data) * primeList[70]) % primeList[93] % limit;
 }
-//
-// Custom hash function for HashTable API
-//
-int hash(int data, int limit) {
-    return ((long)abs(data) * primeList[77]) % primeList[7] % limit;
-}
+
 //
 // GPU HasTable Entry
 //
