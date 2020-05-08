@@ -158,7 +158,7 @@ void GpuHashTable::reshape(int numBucketsReshape) {
     else
         blocks = newLimitSize / DEFAULT_WORKERS_BLOCK + 1;
 
-    kernelCopyHashTable<< blocks, DEFAULT_WORKERS_BLOCK >>(
+    kernelCopyHashTable<<< blocks, DEFAULT_WORKERS_BLOCK >>>(
             hashTableBuckets,
             limitSize,
             hashTableBucketsReshaped);
@@ -197,7 +197,7 @@ bool GpuHashTable::insertBatch(int *keys, int* values, int numKeys) {
     cudaMemcpy(deviceKeys, keys, numKeys * sizeof(int), cudaMemcpyHostToDevice);
     cudaMemcpy(deviceValues, values, numKeys * sizeof(int), cudaMemcpyHostToDevice);
 
-    kernelInsertEntry<< blocks, DEFAULT_WORKERS_BLOCK >>(
+    kernelInsertEntry<<< blocks, DEFAULT_WORKERS_BLOCK >>>(
             deviceKeys,
             deviceValues,
             numKeys,
@@ -234,7 +234,7 @@ int* GpuHashTable::getBatch(int* keys, int numKeys) {
     else
         blocks = numKeys / DEFAULT_WORKERS_BLOCK + 1;
 
-    kernelGetEntry<< blocks, DEFAULT_WORKERS_BLOCK >>(
+    kernelGetEntry<<< blocks, DEFAULT_WORKERS_BLOCK >>>(
             keys,
             values,
             numKeys,
