@@ -43,7 +43,7 @@ __global__ void kernelInsertEntry(
         return;
     int currentKey = keys[idx];
     int currentValue = values[idx];
-    int hash = getHash(currentKey, limitSize);
+    int hashValue = getHash(currentKey, limitSize);
     int status = DEFAULT_STATUS;
 
     for (int i = 0; i < BUCKET_SIZE; i++) {
@@ -73,7 +73,7 @@ __global__ void kernelGetEntry(
         return;
 
     int currentKey = keys[idx];
-    int hash = getHash(currentKey, limitSize);
+    int hashValue = getHash(currentKey, limitSize);
 
     for (int i = 0; i < BUCKET_SIZE; i++) {
         if ( hashTableBuckets[hash * BUCKET_SIZE + i].HashTableEntryKey == currentKey ) {
