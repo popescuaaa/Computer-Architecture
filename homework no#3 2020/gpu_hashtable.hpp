@@ -4,6 +4,7 @@
 using namespace std;
 
 #define	KEY_INVALID		0
+#define BUCKET_SIZE     100
 
 #define DIE(assertion, call_description) \
 	do {	\
@@ -73,16 +74,34 @@ int hash2(int data, int limit) {
 int hash3(int data, int limit) {
 	return ((long)abs(data) * primeList[70]) % primeList[93] % limit;
 }
+//
+// Custom hash function for HashTable API
+//
+int hash(int data, int limit) {
+    return ((long)abs(data) * primeList[77]) % primeList[7] % limit;
+}
+//
+// GPU HasTable Entry
+//
+struct HashTableEntry {
+    int hashKey;
+    int hashValue;
+};
 
 //
 // GPU HashTable
 //
 class GpuHashTable
 {
+    private:
+        int currentSize;
+        int limitSize;
+        HashTableEntry *hashTableBuckets;
+
 	public:
 		GpuHashTable(int size);
 		void reshape(int sizeReshape);
-		
+
 		bool insertBatch(int *keys, int* values, int numKeys);
 		int* getBatch(int* key, int numItems);
 		
