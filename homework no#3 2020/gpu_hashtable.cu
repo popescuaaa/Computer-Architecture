@@ -120,7 +120,7 @@ GpuHashTable::GpuHashTable(int size) {
     cudaMallocManaged(&hashTableBuckets,
             limitSize * BUCKET_SIZE * sizeof(HashTableEntry));
     if (hashTableBuckets == 0) {
-        std::cerr << "[HOST] Couldn't allocate memory for GpuHashTable!\n";
+        cerr << "[HOST] Couldn't allocate memory for GpuHashTable!\n";
     }
     cudaMemset(hashTableBuckets,
             0,
@@ -145,7 +145,7 @@ void GpuHashTable::reshape(int numBucketsReshape) {
                       newLimitSize * BUCKET_SIZE * sizeof(HashTableEntry));
 
     if (hashTableBucketsReshaped == 0) {
-        std::cerr << "[HOST] Couldn't allocate memory for GpuHashTable Reshape!\n";
+        cerr << "[HOST] Couldn't allocate memory for GpuHashTable Reshape!\n";
     }
 
     cudaMemset(hashTableBucketsReshaped,
@@ -190,7 +190,7 @@ bool GpuHashTable::insertBatch(int *keys, int* values, int numKeys) {
     cudaMalloc(&deviceValues, numKeys * sizeof(int));
 
     if (deviceValues == 0 || deviceKeys == 0) {
-        std::cerr << "[HOST] Couldn't allocate memory for device keys or values arrays!\n";
+        cerr << "[HOST] Couldn't allocate memory for device keys or values arrays!\n";
         return FAIL;
     }
 
@@ -222,7 +222,7 @@ int* GpuHashTable::getBatch(int* keys, int numKeys) {
     cudaMallocManaged(&values, numKeys * sizeof(int));
 
     if (deviceKeys == 0 || values == 0) {
-        std::cerr << "[HOST] Couldn't allocate memory for device keys or values arrays!\n";
+        cerr << "[HOST] Couldn't allocate memory for device keys or values arrays!\n";
         return NULL;
     }
 
