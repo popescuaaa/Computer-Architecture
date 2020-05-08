@@ -3,8 +3,13 @@
 
 using namespace std;
 
-#define	KEY_INVALID		0
-#define BUCKET_SIZE     100
+#define	KEY_INVALID		                 0
+#define BUCKET_SIZE                     100
+#define LOAD_FACTOR                     0.75f
+#define DEFAULT_WORKERS_BLOCK           512
+#define DEFAULT_STATUS                  -1
+#define FAIL                            false
+#define SUCCESS                         true
 
 #define DIE(assertion, call_description) \
 	do {	\
@@ -84,10 +89,9 @@ int hash(int data, int limit) {
 // GPU HasTable Entry
 //
 struct HashTableEntry {
-    int hashKey;
-    int hashValue;
+    int HashTableEntryKey;
+    int HashTableEntryValue;
 };
-
 //
 // GPU HashTable
 //
@@ -100,8 +104,8 @@ class GpuHashTable
 
 	public:
 		GpuHashTable(int size);
-		void reshape(int sizeReshape);
 
+		void reshape(int sizeReshape);
 		bool insertBatch(int *keys, int* values, int numKeys);
 		int* getBatch(int* key, int numItems);
 		
