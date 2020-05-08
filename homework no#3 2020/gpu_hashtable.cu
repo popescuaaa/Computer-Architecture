@@ -89,7 +89,6 @@ __global__ void kernelCopyHashTable(
         HashTableEntry *hashTableBucketsOrig,
         int limitSizeOrig,
         HashTableEntry *hashTableBuckets) {
-    cerr << "[GPU] Hello!\n";
 
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
     if (idx > limitSizeOrig)
