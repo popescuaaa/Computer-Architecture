@@ -1,5 +1,5 @@
 CXX=g++
-CXX_FLAGS=-O2 -g -std=c++11
+CXX_FLAGS=-O2 -g -std=c++11 -Xcompiler -rdynamic -lineinfo
 
 all: gpu_hashtable
 
