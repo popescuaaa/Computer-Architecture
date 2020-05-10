@@ -75,19 +75,12 @@ __global__ void kernelGetEntry(
     int currentKey = keys[idx];
     int hash = getHash(currentKey, limitSize);
     int status = DEFAULT_STATUS;
-    int notEmpty = -2;
 
     for (int i = 0; i < BUCKET_SIZE; i++) {
-        status = atomicCAS(&hashTableBuckets[hash * BUCKET_SIZE + i].HashTableEntryKey,
-                           KEY_INVALID,
-                           notEmpty);
-
-        if ( status == notEmpty) {
-            /* Insert the value */
-            if (hashTableBuckets[hash * BUCKET_SIZE + i].HashTableEntryKey == currentKey) {
-                values[idx] = hashTableBuckets[hash * BUCKET_SIZE + i].HashTableEntryValue;
-                return;
-            }
+        if ( hashTableBuckets[hash * BUCKET_SIZE + i].HashTableEntryKey == currentKey ) {
+            /* Insert in the values vector */
+            values[idx] = hashTableBuckets[hash * BUCKET_SIZE + i].HashTableEntryValue;
+            return;
         }
     }
 
