@@ -110,7 +110,9 @@ int main(int argc, char **argv)
 		<< ", " << 100.f * HASH_LOAD_FACTOR << endl;
 	
 		DIE(valuesGot == NULL, "ERR, ptr valuesCheck cannot be NULL");
-		
+
+        cout << "[DEBUG] Get finished...\n" << endl;
+
 		int mistmatches = 0;
 		for(int i = 0; i < chunkSize; i++) {
 			if(vecValues[chunkStart + i] != valuesGot[i]) {
