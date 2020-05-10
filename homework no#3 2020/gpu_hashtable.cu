@@ -220,7 +220,7 @@ int* GpuHashTable::getBatch(int* keys, int numKeys) {
     int *values;
 
     cudaMalloc(&deviceKeys, numKeys * sizeof(int));
-    cudaMallocManaged(&values, numKeys * sizeof(int));
+    cudaMalloc(&values, numKeys * sizeof(int));
 
     if (deviceKeys == 0 || values == 0) {
         cerr << "[HOST] Couldn't allocate memory for device keys or values arrays!\n";
