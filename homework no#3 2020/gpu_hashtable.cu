@@ -74,7 +74,6 @@ __global__ void kernelGetEntry(
 
     int currentKey = keys[idx];
     int hash = getHash(currentKey, limitSize);
-    int status = DEFAULT_STATUS;
 
     for (int i = 0; i < BUCKET_SIZE; i++) {
         if ( hashTableBuckets[hash * BUCKET_SIZE + i].HashTableEntryKey == currentKey ) {
