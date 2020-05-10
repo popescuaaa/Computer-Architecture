@@ -113,6 +113,9 @@ int main(int argc, char **argv)
 
         cout << "[DEBUG] Get finished...\n" << endl;
 
+        cout << "[DEBUG] Values...\n" << valuesGot [0]<< endl;
+        cout << "[DEBUG] Values...\n" << valuesGot [1]<< endl;
+
 		int mistmatches = 0;
 		for(int i = 0; i < chunkSize; i++) {
 			if(vecValues[chunkStart + i] != valuesGot[i]) {
