@@ -115,6 +115,7 @@ int main(int argc, char **argv)
 
 		int mistmatches = 0;
 		for(int i = 0; i < chunkSize; i++) {
+		    cout << valuesGot[i] << endl;
 			if(vecValues[chunkStart + i] != valuesGot[i]) {
 				mistmatches++;
 				if(mistmatches < 32) {
