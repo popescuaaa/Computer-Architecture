@@ -41,6 +41,10 @@ void fillRandom(vector<int> &vecKeys, vector<int> &vecValues, int numEntries) {
 	
 	random_shuffle(vecKeys.begin(), vecKeys.end());
 	random_shuffle(vecValues.begin(), vecValues.end());
+
+    for(int i = 0; i < numEntries; i++) {
+        cout << vecKeys[i]  << ":" <<vecValues[i] << endl;
+    }
 }
 
 int main(int argc, char **argv)

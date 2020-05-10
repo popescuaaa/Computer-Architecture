@@ -149,9 +149,7 @@ void GpuHashTable::reshape(int numBucketsReshape) {
         cerr << "[HOST] Couldn't allocate memory for GpuHashTable Reshape!\n";
     }
 
-    cudaMemset(hashTableBucketsReshaped,
-               0,
-               newLimitSize * BUCKET_SIZE * sizeof(HashTableEntry));
+    cudaMemset(hashTableBucketsReshaped, 0, newLimitSize * BUCKET_SIZE * sizeof(HashTableEntry));
 
     int blocks;
     if (limitSize % DEFAULT_WORKERS_BLOCK == 0)
