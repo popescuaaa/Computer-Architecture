@@ -98,7 +98,6 @@ int main(int argc, char **argv)
 
 	// perform GET and test performance
 	for(int chunkStart = 0; chunkStart < numKeys; chunkStart += chunkSize) {
-		
 		int* keysStart = &vecKeys[chunkStart];
 
 		begin = clock();
