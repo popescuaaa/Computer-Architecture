@@ -76,7 +76,7 @@ __global__ void kernelGetEntry(
     int hash = getHash(currentKey, limitSize);
 
     for (int i = 0; i < BUCKET_SIZE; i++) {
-        if (hashTableBuckets[hash * BUCKET_SIZE + i].HashTableEntryKey != INVALID_KEY) {
+        if (hashTableBuckets[hash * BUCKET_SIZE + i].HashTableEntryKey != KEY_INVALID) {
             if (hashTableBuckets[hash * BUCKET_SIZE + i].HashTableEntryKey == currentKey) {
                 /* Insert in the values vector */
                 values[idx] = hashTableBuckets[hash * BUCKET_SIZE + i].HashTableEntryValue;
