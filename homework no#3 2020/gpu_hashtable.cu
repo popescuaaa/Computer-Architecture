@@ -181,15 +181,11 @@ bool GpuHashTable::insertBatch(int *keys, int* values, int numKeys) {
 
     int *deviceKeys;
     int *deviceValues;
-
     int blocks;
-    if (numKeys > DEFAULT_WORKERS_BLOCK) {
-        if (numKeys % DEFAULT_WORKERS_BLOCK == 0)
-            blocks = numKeys / DEFAULT_WORKERS_BLOCK;
-        else
-            blocks = numKeys / DEFAULT_WORKERS_BLOCK + 1;
-    } else
-        blocks = 1;
+    if (numKeys % DEFAULT_WORKERS_BLOCK == 0)
+        blocks = numKeys / DEFAULT_WORKERS_BLOCK;
+    else
+        blocks = numKeys / DEFAULT_WORKERS_BLOCK + 1;
 
     cudaMalloc(&deviceKeys, numKeys * sizeof(int));
     cudaMalloc(&deviceValues, numKeys * sizeof(int));
@@ -234,13 +230,11 @@ int* GpuHashTable::getBatch(int* keys, int numKeys) {
     cudaMemcpy(deviceKeys, keys, numKeys * sizeof(int), cudaMemcpyHostToDevice);
 
     int blocks;
-    if (numKeys > DEFAULT_WORKERS_BLOCK) {
-        if (numKeys % DEFAULT_WORKERS_BLOCK == 0)
-            blocks = numKeys / DEFAULT_WORKERS_BLOCK;
-        else
-            blocks = numKeys / DEFAULT_WORKERS_BLOCK + 1;
-    } else
-        blocks = 1;
+
+    if (numKeys % DEFAULT_WORKERS_BLOCK == 0)
+        blocks = numKeys / DEFAULT_WORKERS_BLOCK;
+    else
+        blocks = numKeys / DEFAULT_WORKERS_BLOCK + 1;
 
     kernelGetEntry<<< blocks, DEFAULT_WORKERS_BLOCK >>>(
             keys,
