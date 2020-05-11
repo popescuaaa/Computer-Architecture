@@ -35,8 +35,7 @@ __global__ void kernelInsertEntry(
         int *values,
         int numKeys,
         HashTableEntry *hashTableBuckets,
-        int limitSize
-        ) {
+        int limitSize) {
 
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
     if (idx > numKeys)
