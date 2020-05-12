@@ -45,7 +45,7 @@ void fillRandom(vector<int> &vecKeys, vector<int> &vecValues, int numEntries) {
 
 int main(int argc, char **argv)
 {
-	cout << "[DEBUG] akosdjasjdlkjasodijasoijdoiasjodi...\n";
+	cout << "[DEBUG] Start...\n";
 	clock_t begin;
 	double elapsedTime;
 	
@@ -69,7 +69,7 @@ int main(int argc, char **argv)
 	fillRandom(vecKeys, vecValues, numKeys);
 	
 	HASH_INIT;
-	
+    cout << "[DEBUG] The hash has been initiated...\n";
 	int chunkSize = numKeys / numChunks;
 	HASH_RESERVE(chunkSize);
 	
