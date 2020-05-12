@@ -27,7 +27,7 @@
  **/
 
 __device__ int getHash(int data, int limit) {
-    return hash3(data, limit);
+    return (long)abs(data) % limit;
 }
 
 __global__ void kernelInsertEntry(
