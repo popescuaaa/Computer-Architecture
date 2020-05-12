@@ -4,12 +4,6 @@
 using namespace std;
 
 #define	KEY_INVALID		                 0
-#define BUCKET_SIZE                     10
-#define LOAD_FACTOR                     0.8f
-#define DEFAULT_WORKERS_BLOCK           512
-#define DEFAULT_STATUS                  -1
-#define FAIL                            false
-#define SUCCESS                         true
 
 #define DIE(assertion, call_description) \
 	do {	\
