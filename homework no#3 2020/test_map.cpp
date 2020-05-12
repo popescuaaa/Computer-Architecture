@@ -67,9 +67,9 @@ int main(int argc, char **argv)
 		"ERR, numChunks should be greater or equal to 1");
 	
 	fillRandom(vecKeys, vecValues, numKeys);
-	
-	HASH_INIT;
     cout << "[DEBUG] The hash has been initiated...\n";
+	HASH_INIT;
+
 	int chunkSize = numKeys / numChunks;
 	HASH_RESERVE(chunkSize);
 	
