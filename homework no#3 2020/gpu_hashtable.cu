@@ -59,13 +59,13 @@ __global__ void kernelInsertEntry(
     /*
      * Searching from current position in hashTable to the end
      */
-    for (int i = hash; i < limitSize; i++) {
+    for (int i = 0; i < limitSize - hash; i++) {
         status = atomicCAS(&hashTableBuckets[hash + i].HashTableEntryKey, KEY_INVALID, currentKey);
 
         if (status ==  DEFAULT_STATUS || status == currentKey) {
             /* Add new or replace */
-            hashTableBuckets[hash * BUCKET_SIZE + i].HashTableEntryKey = currentKey;
-            hashTableBuckets[hash * BUCKET_SIZE + i].HashTableEntryValue = currentValue;
+            hashTableBuckets[hash + i].HashTableEntryKey = currentKey;
+            hashTableBuckets[hash + i].HashTableEntryValue = currentValue;
             return;
         }
     }
@@ -86,7 +86,7 @@ __global__ void kernelGetEntry(
     int currentKey = keys[idx];
     int hash = getHash(currentKey, limitSize);
 
-    for (int i = hash; i < limitSize; i++) {
+    for (int i = 0; i < limitSize - hash; i++) {
         if (hashTableBuckets[hash + i].HashTableEntryKey == currentKey) {
             /* Insert in the values vector */
             values[idx] = hashTableBuckets[hash * BUCKET_SIZE + i].HashTableEntryValue;
