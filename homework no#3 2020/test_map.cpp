@@ -94,7 +94,7 @@ int main(int argc, char **argv)
 		vecValues[chunkStart] += 1111111 + chunkStart;
 	}
 	HASH_BATCH_INSERT(&vecKeys[0], &vecValues[0], chunkSizeUpdate);
-	//cout << "[DEBUG] Updated keys...\n" << endl;
+	cout << "[DEBUG] Updated keys...\n" << endl;
 
 	// perform GET and test performance
 	for(int chunkStart = 0; chunkStart < numKeys; chunkStart += chunkSize) {
@@ -111,7 +111,7 @@ int main(int argc, char **argv)
 	
 		DIE(valuesGot == NULL, "ERR, ptr valuesCheck cannot be NULL");
 
-        //cout << "[DEBUG] Get finished...\n" << endl;
+        cout << "[DEBUG] Get finished...\n" << endl;
 
 		int mistmatches = 0;
 		for(int i = 0; i < chunkSize; i++) {

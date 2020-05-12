@@ -248,6 +248,7 @@ int* GpuHashTable::getBatch(int* keys, int numKeys) {
 
     cudaFree(deviceValues);
     cudaFree(deviceKeys);
+	
     return values;
 }
 
