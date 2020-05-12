@@ -1,4 +1,4 @@
-/**
+/* /**
  * @author: Popescu Andrei Gabriel 333CA
  * @category: CUDA GPU programming
  *
@@ -176,7 +176,9 @@ bool GpuHashTable::insertBatch(int *keys, int* values, int numKeys) {
     if (currentLoadFactor > LOAD_FACTOR) {
         reshape(limitSize + 3*numKeys);
     }
-
+	
+	currentSize += numKeys;
+	
     int *deviceKeys;
     int *deviceValues;
     int blocks;
@@ -276,3 +278,4 @@ float GpuHashTable::loadFactor() {
 #define HASH_LOAD_FACTOR GpuHashTable.loadFactor()
 
 #include "test_map.cpp"
+ */
