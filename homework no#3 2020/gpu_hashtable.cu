@@ -124,6 +124,7 @@ __global__ void kernelCopyHashTable(
 GpuHashTable::GpuHashTable(int size) {
     limitSize = size;
     currentSize = 0;
+    cout << "[HOST] Host is allocating right now...!\n";
 
     cudaMallocManaged(&hashTableBuckets, limitSize * sizeof(HashTableEntry));
     if (hashTableBuckets == 0) {
