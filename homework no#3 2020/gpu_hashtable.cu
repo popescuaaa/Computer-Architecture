@@ -89,7 +89,7 @@ __global__ void kernelGetEntry(
     for (int i = 0; i < limitSize - hash; i++) {
         if (hashTableBuckets[hash + i].HashTableEntryKey == currentKey) {
             /* Insert in the values vector */
-            values[idx] = hashTableBuckets[hash * BUCKET_SIZE + i].HashTableEntryValue;
+            values[idx] = hashTableBuckets[hash + i].HashTableEntryValue;
             return;
         }
     }
