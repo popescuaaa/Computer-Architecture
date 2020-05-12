@@ -45,6 +45,7 @@ void fillRandom(vector<int> &vecKeys, vector<int> &vecValues, int numEntries) {
 
 int main(int argc, char **argv)
 {
+	cout << "[DEBUG] akosdjasjdlkjasodijasoijdoiasjodi...\n";
 	clock_t begin;
 	double elapsedTime;
 	
