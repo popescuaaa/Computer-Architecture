@@ -27,7 +27,7 @@
  **/
 
 __device__ int getHash(int data, int limit) {
-    return ((long)abs(data) * 805306457) % 196613 % limit;
+    return hash3(data, limit);
 }
 
 __global__ void kernelInsertEntry(
@@ -171,6 +171,7 @@ void GpuHashTable::reshape(int numBucketsReshape) {
 /* INSERT BATCH
  */
 bool GpuHashTable::insertBatch(int *keys, int* values, int numKeys) {
+	
     int currentLoadFactor = (float) (currentSize + numKeys) / limitSize;
     if (currentLoadFactor > LOAD_FACTOR) {
         reshape(limitSize + 3*numKeys);
