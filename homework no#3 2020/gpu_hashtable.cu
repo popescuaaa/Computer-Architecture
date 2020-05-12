@@ -1,4 +1,4 @@
-/* /**
+/* 
  * @author: Popescu Andrei Gabriel 333CA
  * @category: CUDA GPU programming
  *
@@ -278,4 +278,4 @@ float GpuHashTable::loadFactor() {
 #define HASH_LOAD_FACTOR GpuHashTable.loadFactor()
 
 #include "test_map.cpp"
- */
+ 
