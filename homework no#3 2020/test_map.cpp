@@ -105,6 +105,11 @@ int main(int argc, char **argv)
 		begin = clock();
 		// get stage
 		valuesGot = HASH_BATCH_GET(keysStart, chunkSize);
+
+        for (int i = 0; i < chunkSize; i++) {
+            cout << valuesGot[i] << endl;
+        }
+
 		elapsedTime = double(clock() - begin) / CLOCKS_PER_SEC;
 		
 		cout << "HASH_BATCH_GET, " << chunkSize
@@ -117,7 +122,6 @@ int main(int argc, char **argv)
 
 		int mistmatches = 0;
 		for(int i = 0; i < chunkSize; i++) {
-            //cout << "[DEBUG] Hello...\n" << endl;
 			if(vecValues[chunkStart + i] != valuesGot[i]) {
 				mistmatches++;
 				if(mistmatches < 32) {
