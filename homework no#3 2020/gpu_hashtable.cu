@@ -43,9 +43,10 @@ __global__ void kernelInsertEntry(
         int limitSize) {
 
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
+    printf("Hello from kernel idx: %d\n", idx);
     if (idx >= numKeys)
         return;
-
+    
     int currentKey = keys[idx];
     int currentValue = values[idx];
 
