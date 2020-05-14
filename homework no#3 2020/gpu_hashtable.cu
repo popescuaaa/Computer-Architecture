@@ -24,7 +24,7 @@
  *
  **/
 #define LOAD_FACTOR                     0.8f
-#define DEFAULT_WORKERS_BLOCK           512
+#define DEFAULT_WORKERS_BLOCK           1024
 #define DEFAULT_STATUS                  -1
 #define FAIL                            false
 #define SUCCESS                         true
@@ -47,7 +47,7 @@ __global__ void kernelInsertEntry(
         int limitSize) {
 
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
-    if (idx > numKeys)
+    if (idx >= numKeys)
         return;
 
     int currentKey = keys[idx];
@@ -57,22 +57,25 @@ __global__ void kernelInsertEntry(
     /*
      * Searching from current position in hashTable to the end
      */
-    for (int i = 0; i < limitSize - hash; i++) {
-        /*
-         * compare-and-swap - is perhaps the most significant atomic operation, as you can "implement" essentially
-         * any atomic operation using compare-and-swap
-         * Read inplaceKey from address and computer inplaceKey ==  KEY_INVALID ? emptyEntry : inplaceKey
-         */
-        inplaceKey = atomicCAS(&hashTableBuckets[hash + i].HashTableEntryKey, KEY_INVALID, currentKey);
+    int startPos[2] = { hash, 0 };
+    int endPos[2] = { limitSize, hash };
 
-        if (inplaceKey == currentKey || inplaceKey == KEY_INVALID) {
-            /* Add new or replace */
-            hashTableBuckets[hash + i].HashTableEntryKey = currentKey;
-            hashTableBuckets[hash + i].HashTableEntryValue = currentValue;
-            return;
+    for (int j = 0; i <= 1; j++) {
+        for (int i = startPos[j]; i < endPos[j]; i++) {
+            /*
+             * compare-and-swap - is perhaps the most significant atomic operation, as you can "implement" essentially
+             * any atomic operation using compare-and-swap
+             * Read inplaceKey from address and computer inplaceKey ==  KEY_INVALID ? emptyEntry : inplaceKey
+             */
+            inplaceKey = atomicCAS(&hashTableBuckets[i].HashTableEntryKey, KEY_INVALID, currentKey);
+            if (inplaceKey == currentKey || inplaceKey == KEY_INVALID) {
+                /* Add new or replace */
+                hashTableBuckets[i].HashTableEntryKey = currentKey;
+                hashTableBuckets[i].HashTableEntryValue = currentValue;
+                return;
+            }
         }
     }
-
 }
 
 __global__ void kernelGetEntry(
@@ -83,17 +86,22 @@ __global__ void kernelGetEntry(
         HashTableEntry *hashTableBuckets) {
 
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
-    if (idx > numKeys)
+    if (idx >= numKeys)
         return;
 
     int currentKey = keys[idx];
     int hash = getHash(currentKey, limitSize);
 
-    for (int i = 0; i < limitSize - hash; i++) {
-        if (hashTableBuckets[hash + i].HashTableEntryKey == currentKey) {
-            /* Insert in the values vector */
-            values[idx] = hashTableBuckets[hash + i].HashTableEntryValue;
-            return;
+    int startPos[2] = { hash, 0 };
+    int endPos[2] = {limiSize, hash};
+
+    for (int j = 0; j <= 1; j++) {
+        for (int i = startPos[j]; i < endPos[j]; i++) {
+            if (hashTableBuckets[i].HashTableEntryKey == currentKey) {
+                /* Insert in the values vector */
+                values[idx] = hashTableBuckets[i].HashTableEntryValue;
+                return;
+            }
         }
     }
 
@@ -106,29 +114,39 @@ __global__ void kernelCopyHashTable(
         int limitSize) {
 
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
-    if (idx > limitSizeOrig)
+    if (idx >= limitSizeOrig)
         return;
 
-    if (hashTableBucketsOrig[idx].HashTableEntryKey == KEY_INVALID)
+    if (hashTableBucketsOrig[idx].hashTableEntryKey == KEY_INVALID)
         return;
-    else {
-        int hash = getHash(hashTableBucketsOrig[idx].HashTableEntryKey, limitSize);
-        int inplaceKey;
-        int currentKey = hashTableBucketsOrig[idx].HashTableEntryKey;
-        int currentValue = hashTableBucketsOrig[idx].HashTableEntryValue;
 
-        for (int i = 0; i < limitSize - hash; i++) {
-            inplaceKey = atomicCAS(&hashTableBuckets[hash + i].HashTableEntryKey, KEY_INVALID, currentKey);
+    /*
+     * Perform a new insert into the new hashTable
+     *
+     */
+    int hash = getHash(hashTableBucketsOrig[idx].hashTableEntryKey, limitSize);
+    int currentKey = hashTableBucketsOrig[idx].hashTableEntryKey;
+    int currentValue = hashTableBucketsOrig[idx].hashTableEntryValue;
+    int inplaceKey;
+    int startPos[2] = { hash, 0 };
+    int endPos[2] = { limitSize, hash};
+
+    for (int j = 0; i <= 1; j++) {
+        for (int i = startPos[j]; i < endPos[j]; i++) {
+            /*
+             * compare-and-swap - is perhaps the most significant atomic operation, as you can "implement" essentially
+             * any atomic operation using compare-and-swap
+             * Read inplaceKey from address and computer inplaceKey ==  KEY_INVALID ? emptyEntry : inplaceKey
+             */
+            inplaceKey = atomicCAS(&hashTableBuckets[i].HashTableEntryKey, KEY_INVALID, currentKey);
             if (inplaceKey == currentKey || inplaceKey == KEY_INVALID) {
                 /* Add new or replace */
-                hashTableBuckets[hash + i].HashTableEntryKey = currentKey;
-                hashTableBuckets[hash + i].HashTableEntryValue = currentValue;
+                hashTableBuckets[i].HashTableEntryKey = currentKey;
+                hashTableBuckets[i].HashTableEntryValue = currentValue;
                 return;
             }
         }
-
     }
-
 }
 
 /* INIT HASH
@@ -169,17 +187,21 @@ void GpuHashTable::reshape(int numBucketsReshape) {
 
     cudaMemset(hashTableBucketsReshaped, 0, newLimitSize * sizeof(HashTableEntry));
 
-    int blocks;
-    if (limitSize % DEFAULT_WORKERS_BLOCK == 0)
-        blocks = newLimitSize / DEFAULT_WORKERS_BLOCK;
-    else
-        blocks = newLimitSize / DEFAULT_WORKERS_BLOCK + 1;
+    int blocks = limitSize / DEFAULT_WORKERS_BLOCK;
 
-    kernelCopyHashTable<<< blocks, DEFAULT_WORKERS_BLOCK >>>(hashTableBuckets, limitSize, hashTableBucketsReshaped, newLimitSize);
+    kernelCopyHashTable<<< blocks, DEFAULT_WORKERS_BLOCK >>>(
+            hashTableBuckets,
+            limitSize,
+            hashTableBucketsReshaped,
+            newLimitSize
+            );
 
     cudaDeviceSynchronize();
     cudaFree(hashTableBuckets);
 
+    /*
+     *  Get the new parameters
+     */
     hashTableBuckets = hashTableBucketsReshaped;
     limitSize = newLimitSize;
 }
@@ -191,16 +213,12 @@ bool GpuHashTable::insertBatch(int *keys, int* values, int numKeys) {
     if (futureLoadFactor > LOAD_FACTOR) {
         reshape(2 * limitSize);
     }
-	
-	currentSize += numKeys;
-	
+
     int *deviceKeys;
     int *deviceValues;
     int blocks;
-    if (numKeys % DEFAULT_WORKERS_BLOCK == 0)
-        blocks = numKeys / DEFAULT_WORKERS_BLOCK;
-    else
-        blocks = numKeys / DEFAULT_WORKERS_BLOCK + 1;
+
+    blocks = numKeys / DEFAULT_WORKERS_BLOCK;
 
     cudaMalloc(&deviceKeys, numKeys * sizeof(int));
     cudaMalloc(&deviceValues, numKeys * sizeof(int));
@@ -222,6 +240,8 @@ bool GpuHashTable::insertBatch(int *keys, int* values, int numKeys) {
             );
 
     cudaDeviceSynchronize();
+
+    currentSize += numKeys;
 
     cudaFree(deviceKeys);
     cudaFree(deviceValues);
@@ -248,11 +268,7 @@ int* GpuHashTable::getBatch(int* keys, int numKeys) {
     cudaMemset(deviceValues, 0, numKeys * sizeof(int));
     cudaMemcpy(deviceKeys, keys, numKeys * sizeof(int), cudaMemcpyHostToDevice);
 
-    int blocks;
-    if (numKeys % DEFAULT_WORKERS_BLOCK == 0)
-        blocks = numKeys / DEFAULT_WORKERS_BLOCK;
-    else
-        blocks = numKeys / DEFAULT_WORKERS_BLOCK + 1;
+    int blocks = numKeys / DEFAULT_WORKERS_BLOCK;
 
     kernelGetEntry<<< blocks, DEFAULT_WORKERS_BLOCK >>>(
             keys,
@@ -263,7 +279,8 @@ int* GpuHashTable::getBatch(int* keys, int numKeys) {
             );
 
     cudaDeviceSynchronize();
-    cudaMemcpy(deviceValues, values, numKeys * sizeof(int), cudaMemcpyDeviceToHost);
+
+    cudaMemcpy(values, deviceValues, numKeys * sizeof(int), cudaMemcpyDeviceToHost);
 
     cudaFree(deviceValues);
     cudaFree(deviceKeys);
