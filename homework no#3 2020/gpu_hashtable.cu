@@ -250,7 +250,7 @@ int* GpuHashTable::getBatch(int* keys, int numKeys) {
             );
 
     cudaDeviceSynchronize();
-    cudaMemcpy(values, deviceValues, numKeys * sizeof(int), cudaMemcpyDeviceToHost);
+    cudaMemcpy(deviceValues, values, numKeys * sizeof(int), cudaMemcpyDeviceToHost);
 
     cudaFree(deviceValues);
     cudaFree(deviceKeys);
