@@ -129,7 +129,7 @@ __global__ void kernelCopyHashTable(
     int currentValue = hashTableBucketsOrig[idx].HashTableEntryValue;
     int inplaceKey;
     int startPos[2] = { hash, 0 };
-    int endPos[2] = { limitSize, hash};
+    int endPos[2] = { limitSize, hash };
 
     for (int j = 0; j <= 1; j++) {
         for (int i = startPos[j]; i < endPos[j]; i++) {
@@ -157,11 +157,9 @@ GpuHashTable::GpuHashTable(int size) {
     cout << "[HOST] Host is allocating right now...!\n";
 
     cudaMalloc(&hashTableBuckets, limitSize * sizeof(HashTableEntry));
-
     if (hashTableBuckets == 0) {
         cerr << "[HOST] Couldn't allocate memory for GpuHashTable!\n";
     }
-
     cout << "[HOST] Host has allocated right now...!\n";
     cudaMemset(hashTableBuckets, 0, limitSize * sizeof(HashTableEntry));
 }
