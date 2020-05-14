@@ -258,7 +258,7 @@ int* GpuHashTable::getBatch(int* keys, int numKeys) {
 
     cudaMalloc(&deviceKeys, numKeys * sizeof(int));
     cudaMalloc(&deviceValues, numKeys * sizeof(int));
-    values = (int *) malloc(numKeys * sizeof(int));
+    //values = (int *) malloc(numKeys * sizeof(int));
 
     if (deviceKeys == 0 || deviceValues == 0 || values == 0) {
         cerr << "[HOST] Couldn't allocate memory for device keys or values arrays!\n";
@@ -280,12 +280,12 @@ int* GpuHashTable::getBatch(int* keys, int numKeys) {
 
     cudaDeviceSynchronize();
 
-    cudaMemcpy(values, deviceValues, numKeys * sizeof(int), cudaMemcpyDeviceToHost);
+    //cudaMemcpy(values, deviceValues, numKeys * sizeof(int), cudaMemcpyDeviceToHost);
 
-    cudaFree(deviceValues);
+    //cudaFree(deviceValues);
     cudaFree(deviceKeys);
 	
-    return values;
+    return deviceValues;
 }
 
 /* GET LOAD FACTOR
