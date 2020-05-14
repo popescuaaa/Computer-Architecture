@@ -126,9 +126,8 @@ GpuHashTable::GpuHashTable(int size) {
     currentSize = 0;
     cout << "[HOST] Host is allocating right now...!\n";
 
-    if (cudaMalloc(&hashTableBuckets, limitSize * sizeof(HashTableEntry)) != cudaSuccess) {
-        cerr << "WTF\n";
-    };
+    cudaMalloc(&hashTableBuckets, limitSize * sizeof(HashTableEntry));
+
     if (hashTableBuckets == 0) {
         cerr << "[HOST] Couldn't allocate memory for GpuHashTable!\n";
     }
@@ -149,7 +148,7 @@ void GpuHashTable::reshape(int numBucketsReshape) {
     HashTableEntry *hashTableBucketsReshaped;
     int newLimitSize = numBucketsReshape;
 
-    cudaMallocManaged(&hashTableBucketsReshaped, newLimitSize * sizeof(HashTableEntry));
+    cudaMalloc(&hashTableBucketsReshaped, newLimitSize * sizeof(HashTableEntry));
 
     if (hashTableBucketsReshaped == 0) {
         cerr << "[HOST] Couldn't allocate memory for GpuHashTable Reshape!\n";
