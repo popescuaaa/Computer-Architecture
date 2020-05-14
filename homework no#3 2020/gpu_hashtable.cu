@@ -53,15 +53,19 @@ __global__ void kernelInsertEntry(
     int currentKey = keys[idx];
     int currentValue = values[idx];
     int hash = getHash(currentKey, limitSize);
-    int status = DEFAULT_STATUS;
-    int emptyEntry = DEFAULT_STATUS * 2;
+    int inplaceKey;
     /*
      * Searching from current position in hashTable to the end
      */
     for (int i = 0; i < limitSize - hash; i++) {
-        status = atomicCAS(&hashTableBuckets[hash + i].HashTableEntryKey, KEY_INVALID, emptyEntry);
+        /*
+         * compare-and-swap - is perhaps the most significant atomic operation, as you can "implement" essentially
+         * any atomic operation using compare-and-swap
+         * Read inplaceKey from address and computer inplaceKey ==  KEY_INVALID ? emptyEntry : inplaceKey
+         */
+        inplaceKey = atomicCAS(&hashTableBuckets[hash + i].HashTableEntryKey, KEY_INVALID, currentKey);
 
-        if (status == currentKey) {
+        if (inplaceKey == currentKey) {
             /* Add new or replace */
             hashTableBuckets[hash + i].HashTableEntryKey = currentKey;
             hashTableBuckets[hash + i].HashTableEntryValue = currentValue;
