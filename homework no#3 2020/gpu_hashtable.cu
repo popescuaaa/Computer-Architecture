@@ -29,18 +29,14 @@
 #define FAIL                            false
 #define SUCCESS                         true
 
-#define HASH_A 823117
-#define HASH_B 3452434812973
-
 /*
  *  Device functions cannot be called from host functions
  *  so basically is a API exposure problem to make this
  *  a kernel function or even a classical host function
  *
  **/
-
 __device__ int getHash(int data, int limit) {
-    return ((long long) abs(data) * HASH_A) % HASH_B % limit;
+    return ((long long) abs(data) * 823117) % 3452434812973 % limit;
 }
 
 __global__ void kernelInsertEntry(
