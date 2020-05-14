@@ -247,36 +247,31 @@ bool GpuHashTable::insertBatch(int *keys, int* values, int numKeys) {
 int* GpuHashTable::getBatch(int* keys, int numKeys) {
     int *deviceKeys;
     int *values;
-    int *deviceValues;
 
     cudaMalloc(&deviceKeys, numKeys * sizeof(int));
-    cudaMalloc(&deviceValues, numKeys * sizeof(int));
-    values = (int *) malloc(numKeys * sizeof(int));
+    cudaMallocManaged(&values, numKeys * sizeof(int));
 
-    if (deviceKeys == 0 || deviceValues == 0 || values == 0) {
+
+    if (deviceKeys == 0 || values == 0) {
         cerr << "[HOST] Couldn't allocate memory for device keys or values arrays!\n";
         return NULL;
     }
 
-    cudaMemset(deviceValues, 0, numKeys * sizeof(int));
     cudaMemcpy(deviceKeys, keys, numKeys * sizeof(int), cudaMemcpyHostToDevice);
 
     int blocks = numKeys / DEFAULT_WORKERS_BLOCK;
 
     kernelGetEntry<<< blocks, DEFAULT_WORKERS_BLOCK >>>(
             deviceKeys,
-            deviceValues,
+            values,
             numKeys,
             limitSize,
             hashTableBuckets
             );
 
     cudaDeviceSynchronize();
-    cudaMemcpy(values, deviceValues, numKeys * sizeof(int), cudaMemcpyDeviceToHost);
-
-    cudaFree(deviceValues);
+    
     cudaFree(deviceKeys);
-
 
     return values;
 }
