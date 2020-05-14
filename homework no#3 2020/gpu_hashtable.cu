@@ -130,6 +130,7 @@ GpuHashTable::GpuHashTable(int size) {
     if (hashTableBuckets == 0) {
         cerr << "[HOST] Couldn't allocate memory for GpuHashTable!\n";
     }
+    cout << "[HOST] Host has allocated right now...!\n";
     cudaMemset(hashTableBuckets, 0, limitSize * sizeof(HashTableEntry));
 }
 
