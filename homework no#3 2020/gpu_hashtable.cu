@@ -117,16 +117,16 @@ __global__ void kernelCopyHashTable(
     if (idx >= limitSizeOrig)
         return;
 
-    if (hashTableBucketsOrig[idx].hashTableEntryKey == KEY_INVALID)
+    if (hashTableBucketsOrig[idx].HashTableEntryKey == KEY_INVALID)
         return;
 
     /*
      * Perform a new insert into the new hashTable
      *
      */
-    int hash = getHash(hashTableBucketsOrig[idx].hashTableEntryKey, limitSize);
-    int currentKey = hashTableBucketsOrig[idx].hashTableEntryKey;
-    int currentValue = hashTableBucketsOrig[idx].hashTableEntryValue;
+    int hash = getHash(hashTableBucketsOrig[idx].HashTableEntryKey, limitSize);
+    int currentKey = hashTableBucketsOrig[idx].HashTableEntryKey;
+    int currentValue = hashTableBucketsOrig[idx].HashTableEntryValue;
     int inplaceKey;
     int startPos[2] = { hash, 0 };
     int endPos[2] = { limitSize, hash};
