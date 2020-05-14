@@ -126,7 +126,9 @@ GpuHashTable::GpuHashTable(int size) {
     currentSize = 0;
     cout << "[HOST] Host is allocating right now...!\n";
 
-    cudaMalloc(&hashTableBuckets, limitSize * sizeof(HashTableEntry));
+    if (cudaMalloc(&hashTableBuckets, limitSize * sizeof(HashTableEntry)) != cudaSuccess) {
+        cerr << "WTF\n";
+    };
     if (hashTableBuckets == 0) {
         cerr << "[HOST] Couldn't allocate memory for GpuHashTable!\n";
     }
