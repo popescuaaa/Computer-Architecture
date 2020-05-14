@@ -102,24 +102,33 @@ __global__ void kernelGetEntry(
 __global__ void kernelCopyHashTable(
         HashTableEntry *hashTableBucketsOrig,
         int limitSizeOrig,
-        HashTableEntry *hashTableBuckets) {
+        HashTableEntry *hashTableBuckets,
+        int limitSize) {
 
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
     if (idx > limitSizeOrig)
         return;
 
-    int status = DEFAULT_STATUS;
-    int statusEmpty = -2;
-
-    status = atomicCAS(&hashTableBuckets[idx].HashTableEntryKey, KEY_INVALID, statusEmpty);
-
-    if (status == DEFAULT_STATUS) {
-        hashTableBuckets[idx].HashTableEntryKey =
-                hashTableBucketsOrig[idx].HashTableEntryKey;
-        hashTableBuckets[idx].HashTableEntryValue =
-                hashTableBucketsOrig[idx].HashTableEntryValue;
+    if (hashTableBucketsOrig[idx].HashTableEntryKey == KEY_INVALID)
         return;
+    else {
+        int hash = getHash(hashTableBucketsOrig[idx].HashTableEntryKey, limitSize);
+        int inplaceKey;
+        int currentKey = hashTableBucketsOrig[idx].HashTableEntryKey;
+        int currentValue = hashTableBucketsOrig[idx].HashTableEntryValue;
+
+        for (int i = 0; i < limitSize - hash; i++) {
+            inplaceKey = atomicCAS(&hashTableBuckets[hash + i].HashTableEntryKey, KEY_INVALID, currentKey);
+            if (inplaceKey == currentKey || inplaceKey == KEY_INVALID) {
+                /* Add new or replace */
+                hashTableBuckets[hash + i].HashTableEntryKey = currentKey;
+                hashTableBuckets[hash + i].HashTableEntryValue = currentValue;
+                return;
+            }
+        }
+
     }
+
 }
 
 /* INIT HASH
@@ -165,7 +174,7 @@ void GpuHashTable::reshape(int numBucketsReshape) {
     else
         blocks = newLimitSize / DEFAULT_WORKERS_BLOCK + 1;
 
-    kernelCopyHashTable<<< blocks, DEFAULT_WORKERS_BLOCK >>>(hashTableBuckets, limitSize, hashTableBucketsReshaped);
+    kernelCopyHashTable<<< blocks, DEFAULT_WORKERS_BLOCK >>>(hashTableBuckets, limitSize, hashTableBucketsReshaped, newLimitSize);
 
     cudaDeviceSynchronize();
     cudaFree(hashTableBuckets);
