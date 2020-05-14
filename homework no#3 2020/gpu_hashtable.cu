@@ -272,12 +272,15 @@ int* GpuHashTable::getBatch(int* keys, int numKeys) {
             );
 
     cudaDeviceSynchronize();
-
     cudaMemcpy(values, deviceValues, numKeys * sizeof(int), cudaMemcpyDeviceToHost);
 
     cudaFree(deviceValues);
     cudaFree(deviceKeys);
-	
+
+    for (int i = 0; i < numkeys; i++) {
+        cout << keys[i] << "  " <<values[i] << endl;
+    }
+
     return values;
 }
 
