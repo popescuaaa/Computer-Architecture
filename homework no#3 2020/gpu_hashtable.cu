@@ -18,11 +18,6 @@
  * CUDA Function for exposed HashTable API
  *
  * */
-
-/*
- * Constant values
- *
- **/
 #define LOAD_FACTOR                     0.8f
 #define DEFAULT_WORKERS_BLOCK           1024
 #define DEFAULT_STATUS                  -1
@@ -269,8 +264,8 @@ int* GpuHashTable::getBatch(int* keys, int numKeys) {
     int blocks = numKeys / DEFAULT_WORKERS_BLOCK;
 
     kernelGetEntry<<< blocks, DEFAULT_WORKERS_BLOCK >>>(
-            keys,
-            values,
+            deviceKeys,
+            deviceValues,
             numKeys,
             limitSize,
             hashTableBuckets
