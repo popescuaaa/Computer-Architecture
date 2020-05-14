@@ -54,14 +54,14 @@ __global__ void kernelInsertEntry(
     int currentValue = values[idx];
     int hash = getHash(currentKey, limitSize);
     int status = DEFAULT_STATUS;
-
+    int emptyEntry = DEFAULT_STATUS * 2;
     /*
      * Searching from current position in hashTable to the end
      */
     for (int i = 0; i < limitSize - hash; i++) {
-        status = atomicCAS(&hashTableBuckets[hash + i].HashTableEntryKey, KEY_INVALID, currentKey);
+        status = atomicCAS(&hashTableBuckets[hash + i].HashTableEntryKey, KEY_INVALID, emptyEntry);
 
-        if (status ==  DEFAULT_STATUS || status == currentKey) {
+        if (status == currentKey) {
             /* Add new or replace */
             hashTableBuckets[hash + i].HashTableEntryKey = currentKey;
             hashTableBuckets[hash + i].HashTableEntryValue = currentValue;
