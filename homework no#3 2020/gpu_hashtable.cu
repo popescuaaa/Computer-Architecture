@@ -153,7 +153,6 @@ __global__ void kernelCopyHashTable(
  */
 GpuHashTable::GpuHashTable(int size) {
     limitSize = size;
-    limitSize = 10;
     currentSize = 0;
     cout << "[HOST] Host is allocating right now...!\n";
 
