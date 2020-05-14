@@ -153,6 +153,7 @@ __global__ void kernelCopyHashTable(
  */
 GpuHashTable::GpuHashTable(int size) {
     limitSize = size;
+    limitSize = 100;
     currentSize = 0;
     cout << "[HOST] Host is allocating right now...!\n";
 
@@ -258,7 +259,7 @@ int* GpuHashTable::getBatch(int* keys, int numKeys) {
 
     cudaMalloc(&deviceKeys, numKeys * sizeof(int));
     cudaMalloc(&deviceValues, numKeys * sizeof(int));
-    //values = (int *) malloc(numKeys * sizeof(int));
+    values = (int *) malloc(numKeys * sizeof(int));
 
     if (deviceKeys == 0 || deviceValues == 0 || values == 0) {
         cerr << "[HOST] Couldn't allocate memory for device keys or values arrays!\n";
@@ -280,12 +281,12 @@ int* GpuHashTable::getBatch(int* keys, int numKeys) {
 
     cudaDeviceSynchronize();
 
-    //cudaMemcpy(values, deviceValues, numKeys * sizeof(int), cudaMemcpyDeviceToHost);
+    cudaMemcpy(values, deviceValues, numKeys * sizeof(int), cudaMemcpyDeviceToHost);
 
-    //cudaFree(deviceValues);
+    cudaFree(deviceValues);
     cudaFree(deviceKeys);
 	
-    return deviceValues;
+    return values;
 }
 
 /* GET LOAD FACTOR
