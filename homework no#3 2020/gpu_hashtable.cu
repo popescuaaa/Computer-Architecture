@@ -60,7 +60,7 @@ __global__ void kernelInsertEntry(
     int startPos[2] = { hash, 0 };
     int endPos[2] = { limitSize, hash };
 
-    for (int j = 0; i <= 1; j++) {
+    for (int j = 0; j <= 1; j++) {
         for (int i = startPos[j]; i < endPos[j]; i++) {
             /*
              * compare-and-swap - is perhaps the most significant atomic operation, as you can "implement" essentially
@@ -93,7 +93,7 @@ __global__ void kernelGetEntry(
     int hash = getHash(currentKey, limitSize);
 
     int startPos[2] = { hash, 0 };
-    int endPos[2] = {limiSize, hash};
+    int endPos[2] = { limitSize, hash };
 
     for (int j = 0; j <= 1; j++) {
         for (int i = startPos[j]; i < endPos[j]; i++) {
@@ -131,7 +131,7 @@ __global__ void kernelCopyHashTable(
     int startPos[2] = { hash, 0 };
     int endPos[2] = { limitSize, hash};
 
-    for (int j = 0; i <= 1; j++) {
+    for (int j = 0; j <= 1; j++) {
         for (int i = startPos[j]; i < endPos[j]; i++) {
             /*
              * compare-and-swap - is perhaps the most significant atomic operation, as you can "implement" essentially
