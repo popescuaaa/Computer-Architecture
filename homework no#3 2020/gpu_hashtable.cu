@@ -11,6 +11,7 @@
 #include <ctime>
 #include <sstream>
 #include <string>
+#include <stdio.h>
 
 #include "gpu_hashtable.hpp"
 
@@ -47,6 +48,9 @@ __global__ void kernelInsertEntry(
 
     int currentKey = keys[idx];
     int currentValue = values[idx];
+
+    printf("Current key/value: %d  %d \n", currentKey, currentValue);
+
     int hash = getHash(currentKey, limitSize);
     int inplaceKey;
     /*
@@ -67,6 +71,7 @@ __global__ void kernelInsertEntry(
                 /* Add new or replace */
                 hashTableBuckets[i].HashTableEntryKey = currentKey;
                 hashTableBuckets[i].HashTableEntryValue = currentValue;
+                printf(" The value has been inserted successfully\n");
                 return;
             }
         }
@@ -247,30 +252,34 @@ bool GpuHashTable::insertBatch(int *keys, int* values, int numKeys) {
 int* GpuHashTable::getBatch(int* keys, int numKeys) {
     int *deviceKeys;
     int *values;
+    int *deviceValues;
 
     cudaMalloc(&deviceKeys, numKeys * sizeof(int));
-    cudaMallocManaged(&values, numKeys * sizeof(int));
+    cudaMalloc(&deviceValues, numKeys * sizeof(int));
+    values = (int *) malloc(numKeys * sizeof(int));
 
-
-    if (deviceKeys == 0 || values == 0) {
+    if (deviceKeys == 0 || deviceValues == 0 || values == 0) {
         cerr << "[HOST] Couldn't allocate memory for device keys or values arrays!\n";
         return NULL;
     }
 
+    cudaMemset(deviceValues, 0, numKeys * sizeof(int));
     cudaMemcpy(deviceKeys, keys, numKeys * sizeof(int), cudaMemcpyHostToDevice);
 
     int blocks = numKeys / DEFAULT_WORKERS_BLOCK;
 
     kernelGetEntry<<< blocks, DEFAULT_WORKERS_BLOCK >>>(
             deviceKeys,
-            values,
+            deviceValues,
             numKeys,
             limitSize,
             hashTableBuckets
             );
 
     cudaDeviceSynchronize();
-    
+    cudaMemcpy(values, deviceValues, numKeys * sizeof(int), cudaMemcpyDeviceToHost);
+
+    cudaFree(deviceValues);
     cudaFree(deviceKeys);
 
     return values;
