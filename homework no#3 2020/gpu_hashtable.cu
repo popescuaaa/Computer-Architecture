@@ -157,6 +157,7 @@ GpuHashTable::~GpuHashTable() {
 /* RESHAPE HASH
  */
 void GpuHashTable::reshape(int numBucketsReshape) {
+    cout << "[DEBUG] Reshape process for current hashTable!\n";
     HashTableEntry *hashTableBucketsReshaped;
     int newLimitSize = numBucketsReshape;
 
