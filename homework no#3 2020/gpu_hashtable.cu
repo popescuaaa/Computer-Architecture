@@ -65,7 +65,7 @@ __global__ void kernelInsertEntry(
          */
         inplaceKey = atomicCAS(&hashTableBuckets[hash + i].HashTableEntryKey, KEY_INVALID, currentKey);
 
-        if (inplaceKey == currentKey) {
+        if (inplaceKey == currentKey || inplaceKey == KEY_INVALID) {
             /* Add new or replace */
             hashTableBuckets[hash + i].HashTableEntryKey = currentKey;
             hashTableBuckets[hash + i].HashTableEntryValue = currentValue;
