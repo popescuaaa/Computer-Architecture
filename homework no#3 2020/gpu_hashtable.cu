@@ -251,7 +251,7 @@ __global__ void kernelCopyTable(
             return;
         }
         
-        hash = (hash + 1) & (limitSize - 1);
+        hash = (hash + 1) % limitSize;
     }
 }
 
@@ -294,6 +294,7 @@ void GpuHashTable::reshape(int numBucketsReshape) {
 float GpuHashTable::loadFactor() {
     int currentSizeCPU;
     cudaMemcpy(&currentSizeCPU, currentSize, sizeof(int), cudaMemcpyDeviceToHost);
+
     if (currentSizeCPU != 0)
         return 0.f;
     else
