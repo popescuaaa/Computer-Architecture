@@ -297,7 +297,7 @@ float GpuHashTable::loadFactor() {
     if (currentSizeCPU != 0)
         return 0.f;
     else
-        return (float) *currentSize / limitSize;
+        return (float) currentSizeCPU / limitSize;
 }
 
 /*********************************************************/
