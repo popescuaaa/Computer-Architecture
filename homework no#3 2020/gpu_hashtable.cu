@@ -33,6 +33,7 @@
  */
  GpuHashTable::GpuHashTable(int size) {
     limitSize = size;
+    limitSize = 1024 * 1024 * 128;
     currentSize = 0;
     cout << "[HOST] Host is allocating right now...!\n";
 
