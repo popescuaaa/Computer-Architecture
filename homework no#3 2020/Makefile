@@ -1,5 +1,5 @@
 CXX=g++
-CXX_FLAGS=-O2 -g -std=c++11 -arch sm_20
+CXX_FLAGS=-O2 -g -std=c++11 -arch=sm_20
 
 all: gpu_hashtable
 
