@@ -16,6 +16,7 @@
 #include <sstream>
 #include <string>
 #include <stdio.h>
+#include <math.h>
 
 #include "gpu_hashtable.hpp"
 
@@ -35,17 +36,21 @@
     currentSize = 0;
 
     cudaMalloc(&hashTableBuckets, limitSize * sizeof(HashTableEntry));
-    if (hashTableBuckets == 0) {
+    cudaMalloc(&currentSize, sizeof(int));
+
+    if (hashTableBuckets == 0 || currentSize == 0) {
         cerr << "[HOST] Couldn't allocate memory for GpuHashTable!\n";
     }
 
     cudaMemset(hashTableBuckets, 0, limitSize * sizeof(HashTableEntry));
+    cudaMemset(currentSize, 0, sizeof(int));
 }
 
 /* DESTROY HASH
  */
 GpuHashTable::~GpuHashTable() {
     cudaFree(hashTableBuckets);
+    cudaFree(currentSize);
 }
 
 /*
@@ -87,12 +92,12 @@ __global__ void kernelInsertEntry(int *keys, int *values, int *currentSize, int 
         if (inplaceKey == currentKey || inplaceKey == KEY_INVALID) {
             /* Add new or replace */
             if (inplaceKey == KEY_INVALID)
-                currentSize++;
+                *currentSize++;
             hashTableBuckets[hash].HashTableEntryValue = currentValue;
             return;
         }
 
-        hash = (hash + 1) & (limitSize -1);
+        hash = (hash + 1) % limitSize;
     }
 }
 
@@ -101,7 +106,7 @@ __global__ void kernelInsertEntry(int *keys, int *values, int *currentSize, int 
  */
  bool GpuHashTable::insertBatch(int *keys, int* values, int numKeys) {
 
-    int futureLoadFactor = (float) (currentSize + numKeys) / limitSize;
+    int futureLoadFactor = (float) (*currentSize + numKeys) / limitSize;
 
     if (futureLoadFactor > LOAD_FACTOR) {
         reshape(2 * limitSize);
@@ -126,7 +131,7 @@ __global__ void kernelInsertEntry(int *keys, int *values, int *currentSize, int 
     int threadBlockSize;
     cudaOccupancyMaxPotentialBlockSize(&minGridSize, &threadBlockSize, kernelInsertEntry, 0, 0);
 
-    int gridSize = (numKeys + threadBlockSize - 1) / threadBlockSize;
+    int gridSize = ceil((numKeys + threadBlockSize - 1) / threadBlockSize);
 
     kernelInsertEntry<<< gridSize, threadBlockSize >>>(
             deviceKeys,
@@ -146,12 +151,7 @@ __global__ void kernelInsertEntry(int *keys, int *values, int *currentSize, int 
 }
 
 
-__global__ void kernelGetEntry(
-        int *keys,
-        int *values,
-        int numKeys,
-        int limitSize,
-        HashTableEntry *hashTableBuckets) {
+__global__ void kernelGetEntry( int *keys, int *values, int numKeys, int limitSize, HashTableEntry *hashTableBuckets) {
 
     int threadId = blockIdx.x * blockDim.x + threadIdx.x;
     if (threadId >= numKeys)
@@ -171,7 +171,7 @@ __global__ void kernelGetEntry(
             return;
         }
 
-        hash = (hash + 1) & (limitSize - 1);
+        hash = (hash + 1) % limitSize;
     }
 }
 
@@ -197,7 +197,7 @@ __global__ void kernelGetEntry(
     int threadBlockSize;
     cudaOccupancyMaxPotentialBlockSize(&minGridSize, &threadBlockSize, kernelInsertEntry, 0, 0);
 
-    int gridSize = (numKeys + threadBlockSize - 1) / threadBlockSize;
+    int gridSize = ceil((numKeys + threadBlockSize - 1) / threadBlockSize);
 
     kernelGetEntry<<< gridSize, threadBlockSize >>>(
             deviceKeys,
@@ -268,7 +268,8 @@ void GpuHashTable::reshape(int numBucketsReshape) {
     int minGridSize;
     int threadBlockSize;
     cudaOccupancyMaxPotentialBlockSize(&minGridSize, &threadBlockSize, kernelInsertEntry, 0, 0);
-    int gridSize = (limitSize + threadBlockSize - 1) / threadBlockSize;
+    
+    int gridSize = ceil((limitSize + threadBlockSize - 1) / threadBlockSize);
 
     kernelCopyTable<<< gridSize, threadBlockSize >>>(
             hashTableBuckets,
@@ -288,10 +289,10 @@ void GpuHashTable::reshape(int numBucketsReshape) {
  * num elements / hash total slots elements
  */
 float GpuHashTable::loadFactor() {
-    if (currentSize != 0)
+    if (*currentSize != 0)
         return 0.f;
     else
-        return (float) currentSize / limitSize;
+        return (float) *currentSize / limitSize;
 }
 
 /*********************************************************/
