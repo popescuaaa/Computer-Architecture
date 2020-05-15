@@ -107,12 +107,10 @@ __global__ void kernelInsertEntry(int *keys, int *values, int *currentSize, int 
 
     int currentSizeCPU;
     cudaMemcpy(&currentSizeCPU, currentSize, sizeof(int), cudaMemcpyDeviceToHost);
-
-    cout << currentSizeCPU << endl;
-
     int futureLoadFactor = (float) (currentSizeCPU + numKeys) / limitSize;
    
     if (futureLoadFactor >= LOAD_FACTOR) {
+        cout << "Helo"<< endl;
         reshape(limitSize + numKeys);
     }
 
@@ -150,9 +148,7 @@ __global__ void kernelInsertEntry(int *keys, int *values, int *currentSize, int 
 
     cudaFree(deviceKeys);
     cudaFree(deviceValues);
-    
-    cudaMemcpy(&currentSizeCPU, currentSize, sizeof(int), cudaMemcpyDeviceToHost);
-    cout << currentSizeCPU << endl;
+   
 
 	return SUCCESS;
 }
