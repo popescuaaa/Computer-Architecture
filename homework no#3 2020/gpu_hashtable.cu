@@ -91,14 +91,9 @@ __global__ void kernelInsertEntry(int *keys, int *values, int *currentSize, int 
 
         if (inplaceKey == currentKey || inplaceKey == KEY_INVALID) {
             /* Add new or replace */
-            if (inplaceKey == KEY_INVALID) {
-                printf("New\n");
+            if (inplaceKey == KEY_INVALID)
                 atomicAdd(currentSize, 1);
-            }
-            else {
-                printf("update\n");
-                atomicExch(&hashTableBuckets[hash].HashTableEntryValue, currentValue);
-            }
+            atomicExch(&hashTableBuckets[hash].HashTableEntryValue, currentValue);
             return;
         }
 
