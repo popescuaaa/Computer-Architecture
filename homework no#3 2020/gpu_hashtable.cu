@@ -33,7 +33,6 @@
  */
  GpuHashTable::GpuHashTable(int size) {
     limitSize = size;
-    limitSize = 1024 * 1024 * 128;
     currentSize = 0;
     cout << "[HOST] Host is allocating right now...!\n";
 
@@ -267,7 +266,7 @@ void GpuHashTable::reshape(int numBucketsReshape) {
 
     int minGridSize;
     int threadBlockSize;
-    cudaOccupancyMaxPotentialBlockSize(&minGridSize, &threadBlockSize, kernelCopyTable, 0, 0);
+    cudaOccupancyMaxPotentialBlockSize(&minGridSize, &threadBlockSize, kernelInsertEntry, 0, 0);
     int gridSize = (limitSize + threadBlockSize - 1) / threadBlockSize;
 
     kernelCopyTable<<< gridSize, threadBlockSize >>>(
