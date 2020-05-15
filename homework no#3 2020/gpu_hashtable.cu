@@ -292,7 +292,9 @@ void GpuHashTable::reshape(int numBucketsReshape) {
  * num elements / hash total slots elements
  */
 float GpuHashTable::loadFactor() {
-    if (*currentSize != 0)
+    int currentSizeCPU;
+    cudaMemcpy(&currentSizeCPU, currentSize, sizeof(int), cudaMemcpyDeviceToHost);
+    if (currentSizeCPU != 0)
         return 0.f;
     else
         return (float) *currentSize / limitSize;
