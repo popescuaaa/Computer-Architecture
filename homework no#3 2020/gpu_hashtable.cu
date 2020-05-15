@@ -1,6 +1,10 @@
 /* 
  * @author: Popescu Andrei Gabriel 333CA
  * @category: CUDA GPU programming
+ *   
+ *  The following code contains a minimalist implementation of a HashTable
+ *  that uses the linear probing insertion methodology.
+ *   
  *
  */
 
@@ -21,138 +25,13 @@
  * */
 #define LOAD_FACTOR                     0.8f
 #define DEFAULT_WORKERS_BLOCK           1024
-#define DEFAULT_STATUS                  -1
 #define FAIL                            false
 #define SUCCESS                         true
 
-/*
- *  Device functions cannot be called from host functions
- *  so basically is a API exposure problem to make this
- *  a kernel function or even a classical host function
- *
- **/
-__device__ int getHash(int data, int limit) {
-    return ((long long) abs(data) * 823117) % 3452434812973 % limit;
-}
-
-__global__ void kernelInsertEntry(
-        int *keys,
-        int *values,
-        int numKeys,
-        HashTableEntry *hashTableBuckets,
-        int limitSize) {
-
-    int idx = blockIdx.x * blockDim.x + threadIdx.x;
-    printf("Hello from kernel idx: %d\n", idx);
-    if (idx >= numKeys)
-        return;
-    
-    int currentKey = keys[idx];
-    int currentValue = values[idx];
-
-    printf("Current key/value: %d  %d \n", currentKey, currentValue);
-
-    int hash = getHash(currentKey, limitSize);
-    int inplaceKey;
-    /*
-     * Searching from current position in hashTable to the end
-     */
-    int startPos[2] = { hash, 0 };
-    int endPos[2] = { limitSize, hash };
-
-    for (int j = 0; j <= 1; j++) {
-        for (int i = startPos[j]; i < endPos[j]; i++) {
-            /*
-             * compare-and-swap - is perhaps the most significant atomic operation, as you can "implement" essentially
-             * any atomic operation using compare-and-swap
-             * Read inplaceKey from address and computer inplaceKey ==  KEY_INVALID ? emptyEntry : inplaceKey
-             */
-            inplaceKey = atomicCAS(&hashTableBuckets[i].HashTableEntryKey, KEY_INVALID, currentKey);
-            if (inplaceKey == currentKey || inplaceKey == KEY_INVALID) {
-                /* Add new or replace */
-                hashTableBuckets[i].HashTableEntryKey = currentKey;
-                hashTableBuckets[i].HashTableEntryValue = currentValue;
-                printf(" The value has been inserted successfully\n");
-                return;
-            }
-        }
-    }
-}
-
-__global__ void kernelGetEntry(
-        int *keys,
-        int *values,
-        int numKeys,
-        int limitSize,
-        HashTableEntry *hashTableBuckets) {
-
-    int idx = blockIdx.x * blockDim.x + threadIdx.x;
-    if (idx >= numKeys)
-        return;
-
-    int currentKey = keys[idx];
-    int hash = getHash(currentKey, limitSize);
-
-    int startPos[2] = { hash, 0 };
-    int endPos[2] = { limitSize, hash };
-
-    for (int j = 0; j <= 1; j++) {
-        for (int i = startPos[j]; i < endPos[j]; i++) {
-            if (hashTableBuckets[i].HashTableEntryKey == currentKey) {
-                /* Insert in the values vector */
-                values[idx] = hashTableBuckets[i].HashTableEntryValue;
-                return;
-            }
-        }
-    }
-
-}
-
-__global__ void kernelCopyHashTable(
-        HashTableEntry *hashTableBucketsOrig,
-        int limitSizeOrig,
-        HashTableEntry *hashTableBuckets,
-        int limitSize) {
-
-    int idx = blockIdx.x * blockDim.x + threadIdx.x;
-    if (idx >= limitSizeOrig)
-        return;
-
-    if (hashTableBucketsOrig[idx].HashTableEntryKey == KEY_INVALID)
-        return;
-
-    /*
-     * Perform a new insert into the new hashTable
-     *
-     */
-    int hash = getHash(hashTableBucketsOrig[idx].HashTableEntryKey, limitSize);
-    int currentKey = hashTableBucketsOrig[idx].HashTableEntryKey;
-    int currentValue = hashTableBucketsOrig[idx].HashTableEntryValue;
-    int inplaceKey;
-    int startPos[2] = { hash, 0 };
-    int endPos[2] = { limitSize, hash };
-
-    for (int j = 0; j <= 1; j++) {
-        for (int i = startPos[j]; i < endPos[j]; i++) {
-            /*
-             * compare-and-swap - is perhaps the most significant atomic operation, as you can "implement" essentially
-             * any atomic operation using compare-and-swap
-             * Read inplaceKey from address and computer inplaceKey ==  KEY_INVALID ? emptyEntry : inplaceKey
-             */
-            inplaceKey = atomicCAS(&hashTableBuckets[i].HashTableEntryKey, KEY_INVALID, currentKey);
-            if (inplaceKey == currentKey || inplaceKey == KEY_INVALID) {
-                /* Add new or replace */
-                hashTableBuckets[i].HashTableEntryKey = currentKey;
-                hashTableBuckets[i].HashTableEntryValue = currentValue;
-                return;
-            }
-        }
-    }
-}
 
 /* INIT HASH
  */
-GpuHashTable::GpuHashTable(int size) {
+ GpuHashTable::GpuHashTable(int size) {
     limitSize = size;
     currentSize = 0;
     cout << "[HOST] Host is allocating right now...!\n";
@@ -171,53 +50,64 @@ GpuHashTable::~GpuHashTable() {
     cudaFree(hashTableBuckets);
 }
 
-/* RESHAPE HASH
- */
-void GpuHashTable::reshape(int numBucketsReshape) {
-    cout << "[DEBUG] Reshape process for current hashTable!\n";
-    HashTableEntry *hashTableBucketsReshaped;
-    int newLimitSize = numBucketsReshape;
+/*
+ *  Device functions cannot be called from host functions
+ *  so basically is a API exposure problem to make this
+ *  a kernel function or even a classical host function
+ *              
+ *  32 bits Murmur3 Hash function called < avalanche >
+ *
+ *  https://www.sderosiaux.com/articles/2017/08/26/the-murmur3-hash-function--hashtables-bloom-filters-hyperloglog/
+ **/
 
-    cudaMalloc(&hashTableBucketsReshaped, newLimitSize * sizeof(HashTableEntry));
+__device__ int getHash(int data, int limit) {
+    
+    data ^= data >> 16;
+    data *= 0x85ebca6b;
+    data ^= data >> 13;
+    data *= 0xc2b2ae35;
+    data ^= data >> 16;
+    return data & (limit - 1);
 
-    if (hashTableBucketsReshaped == 0) {
-        cerr << "[HOST] Couldn't allocate memory for GpuHashTable Reshape!\n";
-    }
-
-    cudaMemset(hashTableBucketsReshaped, 0, newLimitSize * sizeof(HashTableEntry));
-
-    int blocks = limitSize / DEFAULT_WORKERS_BLOCK;
-
-    kernelCopyHashTable<<< blocks, DEFAULT_WORKERS_BLOCK >>>(
-            hashTableBuckets,
-            limitSize,
-            hashTableBucketsReshaped,
-            newLimitSize
-            );
-
-    cudaDeviceSynchronize();
-    cudaFree(hashTableBuckets);
-
-    /*
-     *  Get the new parameters
-     */
-    hashTableBuckets = hashTableBucketsReshaped;
-    limitSize = newLimitSize;
 }
+
+__global__ void kernelInsertEntry(int *keys, int *values, int numKeys, HashTableEntry *hashTableBuckets, int limitSize) {
+
+    int threadId = blockIdx.x * blockDim.x + threadIdx.x;
+  
+    if (threadId >= numKeys)
+        return;
+    
+    int currentKey = keys[idx];
+    int currentValue = values[idx];
+    int hash = getHash(currentKey, limitSize);
+
+    while(true) {
+        int inplaceKey = atomicCAS(&hashTableBuckets[i].HashTableEntryKey, KEY_INVALID, currentKey);
+
+        if (inplaceKey == currentKey || inplaceKey == KEY_INVALID) {
+            /* Add new or replace */
+            hashTableBuckets[i].HashTableEntryValue = currentValue;
+            return;
+        }
+
+        hash = (hash + 1) & (limitSize -1);
+    }
+}
+
 
 /* INSERT BATCH
  */
-bool GpuHashTable::insertBatch(int *keys, int* values, int numKeys) {
+ bool GpuHashTable::insertBatch(int *keys, int* values, int numKeys) {
+
     int futureLoadFactor = (float) (currentSize + numKeys) / limitSize;
+
     if (futureLoadFactor > LOAD_FACTOR) {
         reshape(2 * limitSize);
     }
 
     int *deviceKeys;
     int *deviceValues;
-    int blocks;
-
-    blocks = numKeys / DEFAULT_WORKERS_BLOCK;
 
     cudaMalloc(&deviceKeys, numKeys * sizeof(int));
     cudaMalloc(&deviceValues, numKeys * sizeof(int));
@@ -230,7 +120,15 @@ bool GpuHashTable::insertBatch(int *keys, int* values, int numKeys) {
     cudaMemcpy(deviceKeys, keys, numKeys * sizeof(int), cudaMemcpyHostToDevice);
     cudaMemcpy(deviceValues, values, numKeys * sizeof(int), cudaMemcpyHostToDevice);
 
-    kernelInsertEntry<<< blocks, DEFAULT_WORKERS_BLOCK >>>(
+    /* Use CUDA to computer the optimal blockSize and WORKER/block */
+
+    int minGridSize;
+    int threadBlockSize;
+    cudaOccupancyMaxPotentialBlockSize(&mingridsize, &threadblocksize, kernelInsertEntry, 0, 0);
+
+    int gridSize = (num_kvs + threadBlockSize - 1) / threadBlockSize;
+
+    kernelInsertEntry<<< gridSize, threadBlockSize >>>(
             deviceKeys,
             deviceValues,
             numKeys,
@@ -248,28 +146,59 @@ bool GpuHashTable::insertBatch(int *keys, int* values, int numKeys) {
 	return SUCCESS;
 }
 
+
+__global__ void kernelGetEntry(
+        int *keys,
+        int *values,
+        int numKeys,
+        int limitSize,
+        HashTableEntry *hashTableBuckets) {
+
+    int threadId = blockIdx.x * blockDim.x + threadIdx.x;
+    if (threadId >= numKeys)
+        return;
+
+    int currentKey = keys[threadId];
+    int hash = getHash(currentKey, limitSize);
+   
+    while(true) {
+        if (hashTableBuckets[i].HashTableEntryKey == currentKey) {
+            values[threadId] = hashTableBuckets[i].HashTableEntryValue;
+            return;
+        }
+
+        if (hashTableBuckets[i].HashTableEntryKey == KEY_INVALID)
+            return;
+
+        hash = (hash + 1) & (limitSize - 1);
+    }
+}
+
+
 /* GET BATCH
  */
-int* GpuHashTable::getBatch(int* keys, int numKeys) {
+ int* GpuHashTable::getBatch(int* keys, int numKeys) {
     int *deviceKeys;
     int *values;
     int *deviceValues;
 
     cudaMalloc(&deviceKeys, numKeys * sizeof(int));
     cudaMalloc(&deviceValues, numKeys * sizeof(int));
-    values = (int *) malloc(numKeys * sizeof(int));
 
-    if (deviceKeys == 0 || deviceValues == 0 || values == 0) {
-        cerr << "[HOST] Couldn't allocate memory for device keys or values arrays!\n";
+    if (deviceKeys == 0 ||  deviceValues == 0) {
+        cerr << "[HOST] Couldn't allocate memory for device keys GPU arrays!\n";
         return NULL;
     }
 
-    cudaMemset(deviceValues, 0, numKeys * sizeof(int));
     cudaMemcpy(deviceKeys, keys, numKeys * sizeof(int), cudaMemcpyHostToDevice);
+    
+    int minGridSize;
+    int threadBlockSize;
+    cudaOccupancyMaxPotentialBlockSize(&minGridSize, &threadBlockSize, kernelInsertEntry, 0, 0);
 
-    int blocks = numKeys / DEFAULT_WORKERS_BLOCK;
+    int gridSize = (numKeys + threadBlockSize - 1) / threadBlockSize;
 
-    kernelGetEntry<<< blocks, DEFAULT_WORKERS_BLOCK >>>(
+    kernelGetEntry<<< gridSize, threadBlockSize >>>(
             deviceKeys,
             deviceValues,
             numKeys,
@@ -278,6 +207,13 @@ int* GpuHashTable::getBatch(int* keys, int numKeys) {
             );
 
     cudaDeviceSynchronize();
+        
+    values = (int *) malloc(numKeys * sizeof(int));
+    if (values == NULL) {
+        cerr << "[HOST] Couldn't allocate memory for thre return values array!\n";
+        return NULL;
+    }
+
     cudaMemcpy(values, deviceValues, numKeys * sizeof(int), cudaMemcpyDeviceToHost);
 
     cudaFree(deviceValues);
@@ -286,16 +222,78 @@ int* GpuHashTable::getBatch(int* keys, int numKeys) {
     return values;
 }
 
+
+__global__ void kernelCopyTable(
+        HashTableEntry *hashTableBucketsOrig,
+        int limitSizeOrig,
+        HashTableEntry *hashTableBuckets,
+        int limitSize) {
+
+    int threadId = blockIdx.x * blockDim.x + threadIdx.x;
+    if (threadId >= limitSizeOrig)
+        return;
+
+    if (hashTableBucketsOrig[threadId].HashTableEntryKey == KEY_INVALID)
+        return;
+
+    int currentKey = hashTableBucketsOrig[threadId].HashTableEntryKey;
+    int currentValue = hashTableBucketsOrig[threadId].HashTableEntryValue;
+    int hash = getHash(currentKey, limitSize);
+    
+    while (true) {
+        inplaceKey = atomicCAS(&hashTableBuckets[i].HashTableEntryKey, KEY_INVALID, currentKey);
+        if (inplaceKey == currentKey || inplaceKey == KEY_INVALID) {
+            /* Add new or replace */
+            hashTableBuckets[i].HashTableEntryValue = currentValue;
+            return;
+        }
+        
+        hash = (hash + 1) & (limitSize - 1);
+    }
+}
+
+/* RESHAPE HASH
+ */
+void GpuHashTable::reshape(int numBucketsReshape) {
+    HashTableEntry *hashTableBucketsReshaped;
+    int newLimitSize = numBucketsReshape;
+
+    cudaMalloc(&hashTableBucketsReshaped, newLimitSize * sizeof(HashTableEntry));
+
+    if (hashTableBucketsReshaped == 0)
+        cerr << "[HOST] Couldn't allocate memory for GpuHashTable Reshape!\n";
+
+    cudaMemset(hashTableBucketsReshaped, 0, newLimitSize * sizeof(HashTableEntry));
+
+    int minGridSize;
+    int threadBlockSize;
+    cudaOccupancyMaxPotentialBlockSize(&minGridSize, &threadBlockSize, kernelCopyTable, 0, 0);
+    int gridSize = (limitSize + threadBlockSize - 1) / threadBlockSize;
+
+    kernelCopyHashTable<<< gridSize, threadBlockSize >>>(
+            hashTableBuckets,
+            limitSize,
+            hashTableBucketsReshaped,
+            newLimitSize
+            );
+
+    cudaDeviceSynchronize();
+    cudaFree(hashTableBuckets);
+
+    hashTableBuckets = hashTableBucketsReshaped;
+    limitSize = newLimitSize;
+}
+
+
+
 /* GET LOAD FACTOR
  * num elements / hash total slots elements
  */
 float GpuHashTable::loadFactor() {
-    if (currentSize != 0) {
-        // No elements in HashTable
+    if (currentSize != 0)
         return 0.f;
-    } else {
+    else
         return (float) currentSize / limitSize;
-    }
 }
 
 /*********************************************************/
