@@ -45,7 +45,6 @@ void fillRandom(vector<int> &vecKeys, vector<int> &vecValues, int numEntries) {
 
 int main(int argc, char **argv)
 {
-	cout << "[DEBUG] Start...\n";
 	clock_t begin;
 	double elapsedTime;
 	
@@ -69,7 +68,7 @@ int main(int argc, char **argv)
 	fillRandom(vecKeys, vecValues, numKeys);
 
 	HASH_INIT;
-    cout << "[DEBUG] The hash has been initiated...\n";
+
 
 	int chunkSize = numKeys / numChunks;
 	HASH_RESERVE(chunkSize);
@@ -96,7 +95,6 @@ int main(int argc, char **argv)
 		vecValues[chunkStart] += 1111111 + chunkStart;
 	}
 	HASH_BATCH_INSERT(&vecKeys[0], &vecValues[0], chunkSizeUpdate);
-	cout << "[DEBUG] Updated keys...\n" << endl;
 
 	// perform GET and test performance
 	for(int chunkStart = 0; chunkStart < numKeys; chunkStart += chunkSize) {
@@ -106,10 +104,6 @@ int main(int argc, char **argv)
 		// get stage
 		valuesGot = HASH_BATCH_GET(keysStart, chunkSize);
 
-        for (int i = 0; i < chunkSize; i++) {
-            cout << valuesGot[i] << endl;
-        }
-
 		elapsedTime = double(clock() - begin) / CLOCKS_PER_SEC;
 		
 		cout << "HASH_BATCH_GET, " << chunkSize
@@ -117,8 +111,6 @@ int main(int argc, char **argv)
 		<< ", " << 100.f * HASH_LOAD_FACTOR << endl;
 	
 		DIE(valuesGot == NULL, "ERR, ptr valuesCheck cannot be NULL");
-
-        cout << "[DEBUG] Get finished...\n" << endl;
 
 		int mistmatches = 0;
 		for(int i = 0; i < chunkSize; i++) {

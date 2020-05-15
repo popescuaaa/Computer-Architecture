@@ -23,8 +23,7 @@
  * CUDA Function for exposed HashTable API
  *
  * */
-#define LOAD_FACTOR                     0.8f
-#define DEFAULT_WORKERS_BLOCK           1024
+#define LOAD_FACTOR                     0.9f
 #define FAIL                            false
 #define SUCCESS                         true
 
@@ -34,13 +33,12 @@
  GpuHashTable::GpuHashTable(int size) {
     limitSize = size;
     currentSize = 0;
-    cout << "[HOST] Host is allocating right now...!\n";
 
     cudaMalloc(&hashTableBuckets, limitSize * sizeof(HashTableEntry));
     if (hashTableBuckets == 0) {
         cerr << "[HOST] Couldn't allocate memory for GpuHashTable!\n";
     }
-    cout << "[HOST] Host has allocated right now...!\n";
+
     cudaMemset(hashTableBuckets, 0, limitSize * sizeof(HashTableEntry));
 }
 
@@ -242,7 +240,6 @@ __global__ void kernelCopyTable(
     while (true) {
         int inplaceKey = atomicCAS(&hashTableBuckets[hash].HashTableEntryKey, KEY_INVALID, currentKey);
         if (inplaceKey == currentKey || inplaceKey == KEY_INVALID) {
-            /* Add new or replace */
             hashTableBuckets[hash].HashTableEntryValue = currentValue;
             return;
         }
@@ -282,8 +279,6 @@ void GpuHashTable::reshape(int numBucketsReshape) {
     hashTableBuckets = hashTableBucketsReshaped;
     limitSize = newLimitSize;
 }
-
-
 
 /* GET LOAD FACTOR
  * num elements / hash total slots elements
