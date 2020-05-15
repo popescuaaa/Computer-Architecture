@@ -136,7 +136,7 @@ __global__ void kernelInsertEntry(int *keys, int *values, int *currentSize, int 
     kernelInsertEntry<<< gridSize, threadBlockSize >>>(
             deviceKeys,
             deviceValues,
-            &currentSize,
+            currentSize,
             numKeys,
             hashTableBuckets,
             limitSize
