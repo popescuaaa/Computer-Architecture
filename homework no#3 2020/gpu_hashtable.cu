@@ -206,7 +206,7 @@ __global__ void kernelGetEntry(
 
     cudaDeviceSynchronize();
         
-    values = (int *) malloc(numKeys * sizeof(int));
+    values = (int *) calloc(numKeys, sizeof(int));
     if (values == NULL) {
         cerr << "[HOST] Couldn't allocate memory for thre return values array!\n";
         return NULL;
