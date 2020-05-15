@@ -170,7 +170,7 @@ __global__ void kernelGetEntry( int *keys, int *values, int numKeys, int limitSi
         }
 
         if (hashTableBuckets[hash].HashTableEntryKey == KEY_INVALID) {
-            atomicEch(&values[threadId], 0);
+            atomicExch(&values[threadId], 0);
             return;
         }
 
