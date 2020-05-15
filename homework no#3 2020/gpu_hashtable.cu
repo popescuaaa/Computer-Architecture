@@ -70,7 +70,7 @@ __device__ int getHash(int data, int limit) {
 
 }
 
-__global__ void kernelInsertEntry(int *keys, int *values, int numKeys, HashTableEntry *hashTableBuckets, int limitSize) {
+__global__ void kernelInsertEntry(int *keys, int *values, int *currentSize, int numKeys, HashTableEntry *hashTableBuckets, int limitSize) {
 
     int threadId = blockIdx.x * blockDim.x + threadIdx.x;
   
@@ -86,6 +86,8 @@ __global__ void kernelInsertEntry(int *keys, int *values, int numKeys, HashTable
 
         if (inplaceKey == currentKey || inplaceKey == KEY_INVALID) {
             /* Add new or replace */
+            if (inplaceKey == KEY_INVALID)
+                currentSize++;
             hashTableBuckets[hash].HashTableEntryValue = currentValue;
             return;
         }
@@ -129,14 +131,13 @@ __global__ void kernelInsertEntry(int *keys, int *values, int numKeys, HashTable
     kernelInsertEntry<<< gridSize, threadBlockSize >>>(
             deviceKeys,
             deviceValues,
+            &currentSize
             numKeys,
             hashTableBuckets,
             limitSize
             );
 
     cudaDeviceSynchronize();
-
-    currentSize += numKeys;
 
     cudaFree(deviceKeys);
     cudaFree(deviceValues);
@@ -169,7 +170,7 @@ __global__ void kernelGetEntry(
             values[threadId] = 0;
             return;
         }
-        
+
         hash = (hash + 1) & (limitSize - 1);
     }
 }
