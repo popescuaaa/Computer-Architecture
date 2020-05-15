@@ -92,7 +92,7 @@ __global__ void kernelInsertEntry(int *keys, int *values, int *currentSize, int 
         if (inplaceKey == currentKey || inplaceKey == KEY_INVALID) {
             /* Add new or replace */
             if (inplaceKey == KEY_INVALID)
-                *currentSize++;
+                atomicAdd(currentSize, 1);
             hashTableBuckets[hash].HashTableEntryValue = currentValue;
             return;
         }
@@ -106,7 +106,10 @@ __global__ void kernelInsertEntry(int *keys, int *values, int *currentSize, int 
  */
  bool GpuHashTable::insertBatch(int *keys, int* values, int numKeys) {
 
-    int futureLoadFactor = (float) (*currentSize + numKeys) / limitSize;
+    int currentSizeCPU;
+    cudaMemcpy(&currentSizeCPU, currentSize, sizeof(int), cudaMemcpyDeviceToHost);
+
+    int futureLoadFactor = (float) (currentSizeCPU + numKeys) / limitSize;
 
     if (futureLoadFactor > LOAD_FACTOR) {
         reshape(2 * limitSize);
