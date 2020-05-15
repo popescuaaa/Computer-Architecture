@@ -66,7 +66,7 @@ __device__ int getHash(int data, int limit) {
     // data *= 0xc2b2ae35;
     // data ^= data >> 16;
     // return data & (limit - 1);
-    return ((long)abs(data) * 334496971 %  1844674407370955155 % limit;
+    return ((long)abs(data) * 334496971) %  1844674407370955155 % limit;
 
 }
 
