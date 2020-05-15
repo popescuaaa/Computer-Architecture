@@ -283,7 +283,7 @@ void GpuHashTable::reshape(int numBucketsReshape) {
 
     cudaDeviceSynchronize();
     cudaFree(hashTableBuckets);
-
+    
     hashTableBuckets = hashTableBucketsReshaped;
     limitSize = newLimitSize;
 }

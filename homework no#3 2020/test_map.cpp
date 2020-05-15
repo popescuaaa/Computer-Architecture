@@ -114,13 +114,18 @@ int main(int argc, char **argv)
 
 		int mistmatches = 0;
 		for(int i = 0; i < chunkSize; i++) {
+
+			cout << valuesGot[chunkStart + i] << " " <<  valuesGot[i];
+
 			if(vecValues[chunkStart + i] != valuesGot[i]) {
-				mistmatches++;
-				if(mistmatches < 32) {
-					cout << "Expected " << vecValues[chunkStart + i]
-					<< ", but got " << valuesGot[i] << " for key:" << keysStart[i] << endl;
-				}
+				// mistmatches++;
+				// if(mistmatches < 32) {
+				// 	cout << "Expected " << vecValues[chunkStart + i]
+				// 	<< ", but got " << valuesGot[i] << " for key:" << keysStart[i] << endl;
+				// }
+				cout << " BAD";
 			}
+			cout << endl;
 		}
 		
 		if(mistmatches > 0) {
