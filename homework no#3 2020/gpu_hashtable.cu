@@ -93,7 +93,7 @@ __global__ void kernelInsertEntry(int *keys, int *values, int *currentSize, int 
             /* Add new or replace */
             if (inplaceKey == KEY_INVALID)
                 atomicAdd(currentSize, 1);
-            hashTableBuckets[hash].HashTableEntryValue = currentValue;
+            atomicExch(&hashTableBuckets[hash].HashTableEntryValue, currentValue);
             return;
         }
 
@@ -165,12 +165,12 @@ __global__ void kernelGetEntry( int *keys, int *values, int numKeys, int limitSi
    
     while(true) {
         if (hashTableBuckets[hash].HashTableEntryKey == currentKey) {
-            values[threadId] = hashTableBuckets[hash].HashTableEntryValue;
+            atomicExch(&values[threadId], hashTableBuckets[hash].HashTableEntryValue);
             return;
         }
 
         if (hashTableBuckets[hash].HashTableEntryKey == KEY_INVALID) {
-            values[threadId] = 0;
+            atomicEch(&values[threadId], 0);
             return;
         }
 
@@ -247,7 +247,7 @@ __global__ void kernelCopyTable(
     while (true) {
         int inplaceKey = atomicCAS(&hashTableBuckets[hash].HashTableEntryKey, KEY_INVALID, currentKey);
         if (inplaceKey == currentKey || inplaceKey == KEY_INVALID) {
-            hashTableBuckets[hash].HashTableEntryValue = currentValue;
+            atomicExch(&hashTableBuckets[hash].HashTableEntryValue, currentValue);
             return;
         }
         
