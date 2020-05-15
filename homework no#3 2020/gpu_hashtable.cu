@@ -90,7 +90,6 @@ __global__ void kernelInsertEntry(int *keys, int *values, int *currentSize, int 
         int inplaceKey = atomicCAS(&hashTableBuckets[hash].HashTableEntryKey, KEY_INVALID, currentKey);
 
         if (inplaceKey == currentKey || inplaceKey == KEY_INVALID) {
-            /* Add new or replace */
             if (inplaceKey == KEY_INVALID)
                 atomicAdd(currentSize, 1);
             atomicExch(&hashTableBuckets[hash].HashTableEntryValue, currentValue);
@@ -108,6 +107,8 @@ __global__ void kernelInsertEntry(int *keys, int *values, int *currentSize, int 
 
     int currentSizeCPU;
     cudaMemcpy(&currentSizeCPU, currentSize, sizeof(int), cudaMemcpyDeviceToHost);
+
+    cout << currentSizeCPU << endl;
 
     int futureLoadFactor = (float) (currentSizeCPU + numKeys) / limitSize;
    
@@ -149,6 +150,9 @@ __global__ void kernelInsertEntry(int *keys, int *values, int *currentSize, int 
 
     cudaFree(deviceKeys);
     cudaFree(deviceValues);
+    
+    cudaMemcpy(&currentSizeCPU, currentSize, sizeof(int), cudaMemcpyDeviceToHost);
+    cout << currentSizeCPU << endl;
 
 	return SUCCESS;
 }
