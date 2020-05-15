@@ -110,7 +110,6 @@ __global__ void kernelInsertEntry(int *keys, int *values, int *currentSize, int 
     int futureLoadFactor = (float) (currentSizeCPU + numKeys) / limitSize;
    
     if (futureLoadFactor >= LOAD_FACTOR) {
-        cout << "Helo"<< endl;
         reshape(limitSize + numKeys);
     }
 
@@ -144,7 +143,9 @@ __global__ void kernelInsertEntry(int *keys, int *values, int *currentSize, int 
             limitSize
             );
 
-    cudaDeviceSynchronize();
+    cudaError_t cudaerr = cudaDeviceSynchronize();
+    if (cudaerr != cudaSuccess)
+        printf("kernel launch failed with error \"%s\".\n", cudaGetErrorString(cudaerr));
 
     cudaFree(deviceKeys);
     cudaFree(deviceValues);
@@ -210,7 +211,9 @@ __global__ void kernelGetEntry( int *keys, int *values, int numKeys, int limitSi
             hashTableBuckets
             );
 
-    cudaDeviceSynchronize();
+    cudaError_t cudaerr = cudaDeviceSynchronize();
+    if (cudaerr != cudaSuccess)
+        printf("kernel launch failed with error \"%s\".\n", cudaGetErrorString(cudaerr));
         
     values = (int *) calloc(numKeys, sizeof(int));
     if (values == NULL) {
@@ -281,7 +284,10 @@ void GpuHashTable::reshape(int numBucketsReshape) {
             newLimitSize
             );
 
-    cudaDeviceSynchronize();
+    cudaError_t cudaerr = cudaDeviceSynchronize();
+    if (cudaerr != cudaSuccess)
+        printf("kernel launch failed with error \"%s\".\n", cudaGetErrorString(cudaerr));
+    
     cudaFree(hashTableBuckets);
     
     hashTableBuckets = hashTableBucketsReshaped;
