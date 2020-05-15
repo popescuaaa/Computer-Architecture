@@ -87,7 +87,7 @@ __global__ void kernelInsertEntry(int *keys, int *values, int numKeys, HashTable
 
         if (inplaceKey == currentKey || inplaceKey == KEY_INVALID) {
             /* Add new or replace */
-            hashTableBuckets[i].HashTableEntryValue = currentValue;
+            hashTableBuckets[hash].HashTableEntryValue = currentValue;
             return;
         }
 
@@ -121,10 +121,9 @@ __global__ void kernelInsertEntry(int *keys, int *values, int numKeys, HashTable
     cudaMemcpy(deviceValues, values, numKeys * sizeof(int), cudaMemcpyHostToDevice);
 
     /* Use CUDA to computer the optimal blockSize and WORKER/block */
-
     int minGridSize;
     int threadBlockSize;
-    cudaOccupancyMaxPotentialBlockSize(&mingridsize, &threadblocksize, kernelInsertEntry, 0, 0);
+    cudaOccupancyMaxPotentialBlockSize(&minGridSize, &threadBlockSize, kernelInsertEntry, 0, 0);
 
     int gridSize = (num_kvs + threadBlockSize - 1) / threadBlockSize;
 
@@ -270,7 +269,7 @@ void GpuHashTable::reshape(int numBucketsReshape) {
     cudaOccupancyMaxPotentialBlockSize(&minGridSize, &threadBlockSize, kernelCopyTable, 0, 0);
     int gridSize = (limitSize + threadBlockSize - 1) / threadBlockSize;
 
-    kernelCopyHashTable<<< gridSize, threadBlockSize >>>(
+    kernelCopyTable<<< gridSize, threadBlockSize >>>(
             hashTableBuckets,
             limitSize,
             hashTableBucketsReshaped,
