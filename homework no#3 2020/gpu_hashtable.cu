@@ -165,9 +165,10 @@ __global__ void kernelGetEntry(
             return;
         }
 
-        if (hashTableBuckets[hash].HashTableEntryKey == KEY_INVALID)
+        if (hashTableBuckets[hash].HashTableEntryKey == KEY_INVALID) {
+            values[threadId] = 0;
             return;
-
+        }
         hash = (hash + 1) & (limitSize - 1);
     }
 }
