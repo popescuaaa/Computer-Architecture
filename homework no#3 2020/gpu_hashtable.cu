@@ -166,8 +166,10 @@ __global__ void kernelGetEntry(
         }
 
         if (hashTableBuckets[hash].HashTableEntryKey == KEY_INVALID) {
+            values[threadId] = 0;
             return;
         }
+        
         hash = (hash + 1) & (limitSize - 1);
     }
 }
@@ -189,7 +191,6 @@ __global__ void kernelGetEntry(
     }
 
     cudaMemcpy(deviceKeys, keys, numKeys * sizeof(int), cudaMemcpyHostToDevice);
-    cudaMemset(deviceValues, 0, numKeys * sizeof(int));
 
     int minGridSize;
     int threadBlockSize;
