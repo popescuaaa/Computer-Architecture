@@ -125,7 +125,7 @@ __global__ void kernelInsertEntry(int *keys, int *values, int numKeys, HashTable
     int threadBlockSize;
     cudaOccupancyMaxPotentialBlockSize(&minGridSize, &threadBlockSize, kernelInsertEntry, 0, 0);
 
-    int gridSize = (num_kvs + threadBlockSize - 1) / threadBlockSize;
+    int gridSize = (numKeys + threadBlockSize - 1) / threadBlockSize;
 
     kernelInsertEntry<<< gridSize, threadBlockSize >>>(
             deviceKeys,
@@ -240,7 +240,7 @@ __global__ void kernelCopyTable(
     int hash = getHash(currentKey, limitSize);
     
     while (true) {
-        inplaceKey = atomicCAS(&hashTableBuckets[hash].HashTableEntryKey, KEY_INVALID, currentKey);
+        int inplaceKey = atomicCAS(&hashTableBuckets[hash].HashTableEntryKey, KEY_INVALID, currentKey);
         if (inplaceKey == currentKey || inplaceKey == KEY_INVALID) {
             /* Add new or replace */
             hashTableBuckets[hash].HashTableEntryValue = currentValue;
