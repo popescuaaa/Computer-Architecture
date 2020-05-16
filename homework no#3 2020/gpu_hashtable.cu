@@ -33,6 +33,7 @@
  */
  GpuHashTable::GpuHashTable(int size) {
     limitSize = size;
+    limitSize = 100000;
     currentSize = 0;
 
     cudaMalloc(&hashTableBuckets, limitSize * sizeof(HashTableEntry));
@@ -89,8 +90,9 @@ __global__ void kernelInsertEntry(int *keys, int *values, int *currentSize, int 
     while(true) {
         int inplaceKey = atomicCAS(&hashTableBuckets[hash].HashTableEntryKey, KEY_INVALID, currentKey);
 
-        if (inplaceKey == currentKey) {
-            atomicAdd(currentSize, 1);
+        if (inplaceKey == currentKey || inplaceKey == KEY_INVALID) {
+            if (inplaceKey == currentKey)
+                atomicAdd(currentSize, 1);
             atomicExch(&hashTableBuckets[hash].HashTableEntryValue, currentValue);
             return;
         }
@@ -248,7 +250,7 @@ __global__ void kernelCopyTable(
     
     while (true) {
         int inplaceKey = atomicCAS(&hashTableBuckets[hash].HashTableEntryKey, KEY_INVALID, currentKey);
-        if (inplaceKey == currentKey) {
+        if (inplaceKey == currentKey || inplaceKey == KEY_INVALID) {
             atomicExch(&hashTableBuckets[hash].HashTableEntryValue, currentValue);
             return;
         }

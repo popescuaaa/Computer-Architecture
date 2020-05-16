@@ -71,7 +71,7 @@ int main(int argc, char **argv)
 
 
 	int chunkSize = numKeys / numChunks;
-	HASH_RESERVE(chunkSize);
+	//HASH_RESERVE(chunkSize);
 	
 	// perform INSERT and test performance
 	for(int chunkStart = 0; chunkStart < numKeys; chunkStart += chunkSize) {
