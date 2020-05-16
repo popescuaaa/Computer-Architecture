@@ -92,7 +92,7 @@ __global__ void kernelInsertEntry(int *keys, int *values, int *currentSize, int 
         if (inplaceKey == currentKey || inplaceKey == KEY_INVALID) {
             if (inplaceKey == KEY_INVALID)
                 atomicAdd(currentSize, 1);
-            fprintf(stderr, "Hello");
+            fprintf(2, "Hello");
             atomicExch(&hashTableBuckets[hash].HashTableEntryValue, currentValue);
             return;
         }
