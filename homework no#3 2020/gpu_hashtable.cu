@@ -90,7 +90,6 @@ __global__ void kernelInsertEntry(int *keys, int *values, int *currentSize, int 
         int inplaceKey = atomicCAS(&hashTableBuckets[hash].HashTableEntryKey, KEY_INVALID, currentKey);
 
         if (inplaceKey == currentKey || inplaceKey == KEY_INVALID) {
-            cudaPrintf("Insert");
             if (inplaceKey == KEY_INVALID)
                 atomicAdd(currentSize, 1);
             atomicExch(&hashTableBuckets[hash].HashTableEntryValue, currentValue);
