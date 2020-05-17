@@ -87,6 +87,7 @@ __global__ void kernelInsertEntry(int *keys, int *values, int numKeys, HashTable
 
         if (inplaceKey == currentKey || inplaceKey == KEY_INVALID) {
             hashTableBuckets[hash].HashTableEntryValue = currentValue;
+            printf("%d\n", hashTableBuckets[hash].HashTableEntryValue);
             return;
         }
 
