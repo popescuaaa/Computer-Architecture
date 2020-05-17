@@ -87,7 +87,7 @@ struct HashTableEntry {
 class GpuHashTable
 {
     private:
-        int *currentSize;
+        int currentSize;
         int limitSize;
         HashTableEntry *hashTableBuckets;
 

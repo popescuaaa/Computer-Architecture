@@ -33,17 +33,15 @@
  */
  GpuHashTable::GpuHashTable(int size) {
     limitSize = size;
-    currentSize = 0;
-
+    currentKey = 0;
     cudaMalloc(&hashTableBuckets, limitSize * sizeof(HashTableEntry));
-    cudaMalloc(&currentSize, sizeof(int));
 
-    if (hashTableBuckets == 0 || currentSize == 0) {
+    if (hashTableBuckets == 0) {
         cerr << "[HOST] Couldn't allocate memory for GpuHashTable!\n";
     }
 
     cudaMemset(hashTableBuckets, 0, limitSize * sizeof(HashTableEntry));
-    cudaMemset(currentSize, 0, sizeof(int));
+
 }
 
 /* DESTROY HASH
@@ -71,11 +69,10 @@ __device__ int getHash(int data, int limit) {
     data *= 0xc2b2ae35;
     data ^= data >> 16;
     return data % limit;
-    //return ((long)abs(data) * 334496971) %  1844674407370955155 % limit;
 
 }
 
-__global__ void kernelInsertEntry(int *keys, int *values, int *currentSize, int numKeys, HashTableEntry *hashTableBuckets, int limitSize) {
+__global__ void kernelInsertEntry(int *keys, int *values, int numKeys, HashTableEntry *hashTableBuckets, int limitSize) {
 
     int threadId = blockIdx.x * blockDim.x + threadIdx.x;
   
@@ -90,8 +87,6 @@ __global__ void kernelInsertEntry(int *keys, int *values, int *currentSize, int 
         int inplaceKey = atomicCAS(&hashTableBuckets[hash].HashTableEntryKey, KEY_INVALID, currentKey);
 
         if (inplaceKey == currentKey || inplaceKey == KEY_INVALID) {
-            if (inplaceKey == KEY_INVALID)
-                atomicAdd(currentSize, 1);
             atomicExch(&hashTableBuckets[hash].HashTableEntryValue, currentValue);
             return;
         }
@@ -106,16 +101,14 @@ __global__ void kernelInsertEntry(int *keys, int *values, int *currentSize, int 
  bool GpuHashTable::insertBatch(int *keys, int* values, int numKeys) {
     cout << "Insert batch is called...\n";
 
-    // for (int i = 0; i < numKeys; i++) {
-    //     cout << " Insert-> key: " << keys[i] << " " << "value: " << values[i] << endl;
-    // }
+    for (int i = 0; i < numKeys; i++) {
+        cout << " Insert-> key: " << keys[i] << " " << "value: " << values[i] << endl;
+    }
 
-    int currentSizeCPU;
-    cudaMemcpy(&currentSizeCPU, currentSize, sizeof(int), cudaMemcpyDeviceToHost);
-    int futureLoadFactor = (float) (currentSizeCPU + numKeys) / limitSize;
+    int futureLoadFactor = (float) (currentSize + numKeys) / limitSize;
    
     if (futureLoadFactor >= LOAD_FACTOR) {
-        reshape(int ((limitSize + numKeys) * 0.6));
+        reshape(limitSize + numKeys);
     }
 
     int *deviceKeys;
@@ -152,6 +145,8 @@ __global__ void kernelInsertEntry(int *keys, int *values, int *currentSize, int 
     cudaError_t cudaerr = cudaDeviceSynchronize();
     if (cudaerr != cudaSuccess)
         printf("kernel launch failed with error \"%s\".\n", cudaGetErrorString(cudaerr));
+
+    currentSize += numKeys;
 
     cudaFree(deviceKeys);
     cudaFree(deviceValues);
@@ -231,9 +226,9 @@ __global__ void kernelGetEntry( int *keys, int *values, int numKeys, int limitSi
     cudaFree(deviceValues);
     cudaFree(deviceKeys);
 
-    // for (int i = 0; i < numKeys; i++) {
-    //     cout << " Got-> key: " << keys[i] << " " << "value: " << values[i] << endl;
-    // }
+    for (int i = 0; i < numKeys; i++) {
+        cout << " Got-> key: " << keys[i] << " " << "value: " << values[i] << endl;
+    }
 
 
     return values;
@@ -308,13 +303,10 @@ void GpuHashTable::reshape(int numBucketsReshape) {
  * num elements / hash total slots elements
  */
 float GpuHashTable::loadFactor() {
-    int currentSizeCPU;
-    cudaMemcpy(&currentSizeCPU, currentSize, sizeof(int), cudaMemcpyDeviceToHost);
-
-    if (currentSizeCPU != 0)
+    if (currentSize == 0)
         return 0.f;
     else
-        return (float) currentSizeCPU / limitSize;
+        return (float) currentSize / limitSize;
 }
 
 /*********************************************************/
