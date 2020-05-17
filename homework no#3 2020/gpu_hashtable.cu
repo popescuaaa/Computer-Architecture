@@ -111,7 +111,6 @@ __global__ void kernelInsertEntry(int *keys, int *values, int *currentSize, int 
 
     int currentSizeCPU;
     cudaMemcpy(&currentSizeCPU, currentSize, sizeof(int), cudaMemcpyDeviceToHost);
-    cout << limitSize << endl;
     int futureLoadFactor = (float) (currentSizeCPU + numKeys) / limitSize;
    
     if (futureLoadFactor >= LOAD_FACTOR) {
@@ -136,7 +135,7 @@ __global__ void kernelInsertEntry(int *keys, int *values, int *currentSize, int 
     int minGridSize;
     int threadBlockSize;
     cudaOccupancyMaxPotentialBlockSize(&minGridSize, &threadBlockSize, kernelInsertEntry, 0, 0);
-
+    cout << threadBlockSize << endl;
     int gridSize = ceil((numKeys + threadBlockSize - 1) / threadBlockSize);
 
     kernelInsertEntry<<< gridSize, threadBlockSize >>>(
