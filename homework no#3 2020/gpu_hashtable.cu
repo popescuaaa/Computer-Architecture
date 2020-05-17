@@ -104,6 +104,10 @@ __global__ void kernelInsertEntry(int *keys, int *values, int *currentSize, int 
  */
  bool GpuHashTable::insertBatch(int *keys, int* values, int numKeys) {
     cout << "Insert batch is called...\n";
+
+    for (int i =0; i< numKeys; i++) {
+        cout << "key: " << keys[i] << " " << "value: " << values[i] << endl;
+    }
     
     int currentSizeCPU;
     cudaMemcpy(&currentSizeCPU, currentSize, sizeof(int), cudaMemcpyDeviceToHost);
