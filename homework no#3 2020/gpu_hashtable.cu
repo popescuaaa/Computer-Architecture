@@ -33,7 +33,7 @@
  */
  GpuHashTable::GpuHashTable(int size) {
     limitSize = size;
-    currentKey = 0;
+    currentSize = 0;
     cudaMalloc(&hashTableBuckets, limitSize * sizeof(HashTableEntry));
 
     if (hashTableBuckets == 0) {
