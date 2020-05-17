@@ -115,7 +115,7 @@ __global__ void kernelInsertEntry(int *keys, int *values, int *currentSize, int 
     int futureLoadFactor = (float) (currentSizeCPU + numKeys) / limitSize;
    
     if (futureLoadFactor >= LOAD_FACTOR) {
-        reshape(limitSize + numKeys);
+        reshape(int ((limitSize + numKeys) * 0.6));
     }
 
     int *deviceKeys;
