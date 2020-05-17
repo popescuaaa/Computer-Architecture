@@ -48,7 +48,6 @@
  */
 GpuHashTable::~GpuHashTable() {
     cudaFree(hashTableBuckets);
-    cudaFree(currentSize);
 }
 
 /*
@@ -136,7 +135,6 @@ __global__ void kernelInsertEntry(int *keys, int *values, int numKeys, HashTable
     kernelInsertEntry<<< gridSize, threadBlockSize >>>(
             deviceKeys,
             deviceValues,
-            currentSize,
             numKeys,
             hashTableBuckets,
             limitSize
