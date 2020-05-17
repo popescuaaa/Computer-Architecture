@@ -111,6 +111,7 @@ __global__ void kernelInsertEntry(int *keys, int *values, int *currentSize, int 
 
     int currentSizeCPU;
     cudaMemcpy(&currentSizeCPU, currentSize, sizeof(int), cudaMemcpyDeviceToHost);
+    cout << limitSize << endl;
     int futureLoadFactor = (float) (currentSizeCPU + numKeys) / limitSize;
    
     if (futureLoadFactor >= LOAD_FACTOR) {
