@@ -107,7 +107,7 @@ __global__ void kernelInsertEntry(int *keys, int *values, int numKeys, HashTable
     int futureLoadFactor = (float) (currentSize + numKeys) / limitSize;
    
     if (futureLoadFactor >= LOAD_FACTOR) {
-        reshape(limitSize + numKeys);
+        //reshape(limitSize + numKeys);
     }
 
     int *deviceKeys;
@@ -166,10 +166,10 @@ __global__ void kernelGetEntry( int *keys, int *values, int numKeys, int limitSi
             return;
         }
 
-        // if (hashTableBuckets[hash].HashTableEntryKey == KEY_INVALID) {
-        //     values[threadId] = 0;
-        //     return;
-        // }
+        if (hashTableBuckets[hash].HashTableEntryKey == KEY_INVALID) {
+            values[threadId] = 0;
+            return;
+        }
 
         hash = (hash + 1) % limitSize;
     }
