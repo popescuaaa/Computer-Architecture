@@ -12,6 +12,7 @@
 #include <chrono>
 #include <array>
 #include <errno.h>
+#include <unistd.h>
 
 #define	KEY_INVALID		0
 #define DIE(assertion, call_description) \
@@ -95,10 +96,11 @@ int main(int argc, char **argv)
 		vecValues[chunkStart] += 1111111 + chunkStart;
 	}
 	cout << "Before update...\n";
-	
+
 	HASH_BATCH_INSERT(&vecKeys[0], &vecValues[0], chunkSizeUpdate);
 
 	cout << "After update...\n";
+	sleep(10000);
 
 	// perform GET and test performance
 	for(int chunkStart = 0; chunkStart < numKeys; chunkStart += chunkSize) {
