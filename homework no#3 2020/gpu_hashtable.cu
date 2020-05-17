@@ -87,20 +87,25 @@ __global__ void kernelInsertEntry(int *keys, int *values, int *currentSize, int 
     int hash = getHash(currentKey, limitSize);
     
     while(true) {
-        int inplaceKey = atomicCAS(&hashTableBuckets[hash].HashTableEntryKey, KEY_INVALID, currentKey);
-
-        if (inplaceKey == currentKey || inplaceKey == KEY_INVALID) {
-            if (inplaceKey == currentKey)
-                atomicAdd(currentSize, 1);
+        if (hashTableBuckets[hash].HashTableEntryKey == KEY_INVALID) {
+            atomicAdd(currentSize, 1);
+            atomicExch(&hashTableBuckets[hash].HashTableEntryKey, currentKey);
             atomicExch(&hashTableBuckets[hash].HashTableEntryValue, currentValue);
             return;
+        } else {
+            if (hashTableBuckets[hash].HashTableEntryKey == currentKey) {
+                atomicExch(&hashTableBuckets[hash].HashTableEntryValue, currentValue);
+                return;
+            }
         }
+        //int inplaceKey = atomicCAS(&hashTableBuckets[hash].HashTableEntryKey, KEY_INVALID, currentKey);
 
-        if (inplaceKey == hashTableBuckets[hash].HashTableEntryKey) {
-            atomicExch(&hashTableBuckets[hash].HashTableEntryValue, currentValue);
-            return;
-        }
-        
+        // if (inplaceKey == currentKey || inplaceKey == KEY_INVALID) {
+        //     if (inplaceKey == currentKey)
+                
+        //     return;
+        // }
+
         hash = (hash + 1) % limitSize;
     }
 }
