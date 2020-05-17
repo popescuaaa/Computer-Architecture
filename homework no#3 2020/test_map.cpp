@@ -100,8 +100,7 @@ int main(int argc, char **argv)
 	HASH_BATCH_INSERT(&vecKeys[0], &vecValues[0], chunkSizeUpdate);
 
 	cout << "After update...\n";
-	sleep(10);
-
+	
 	// perform GET and test performance
 	for(int chunkStart = 0; chunkStart < numKeys; chunkStart += chunkSize) {
 		int* keysStart = &vecKeys[chunkStart];
