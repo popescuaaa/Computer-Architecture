@@ -98,8 +98,6 @@ __global__ void kernelInsertEntry(int *keys, int *values, int numKeys, HashTable
 /* INSERT BATCH
  */
  bool GpuHashTable::insertBatch(int *keys, int* values, int numKeys) {
-    cout << "Insert batch is called...\n";
-
     int futureLoadFactor = (float) (currentSize + numKeys) / limitSize;
    
     if (futureLoadFactor >= LOAD_FACTOR) {
@@ -120,7 +118,6 @@ __global__ void kernelInsertEntry(int *keys, int *values, int numKeys, HashTable
     cudaMemcpy(deviceKeys, keys, numKeys * sizeof(int), cudaMemcpyHostToDevice);
     cudaMemcpy(deviceValues, values, numKeys * sizeof(int), cudaMemcpyHostToDevice);
 
-    /* Use CUDA to computer the optimal blockSize and WORKER/block */
     int threadBlockSize = 1024;
     int gridSize = numKeys/ threadBlockSize;
     if (numKeys % threadBlockSize)
@@ -216,7 +213,6 @@ __global__ void kernelGetEntry( int *keys, int *values, int numKeys, int limitSi
 
     cudaFree(deviceValues);
     cudaFree(deviceKeys);
-
 
     return values;
 }
