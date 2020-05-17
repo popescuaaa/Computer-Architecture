@@ -84,12 +84,10 @@ __global__ void kernelInsertEntry(int *keys, int *values, int numKeys, HashTable
     
     while(true) {
         int inplaceKey = atomicCAS(&hashTableBuckets[hash].HashTableEntryKey, KEY_INVALID, currentKey);
-
         if (inplaceKey == currentKey || inplaceKey == KEY_INVALID) {
             hashTableBuckets[hash].HashTableEntryValue = currentValue;
             return;
         }
-
         hash = (hash + 1) % limitSize;
     }
 }
@@ -241,7 +239,6 @@ __global__ void kernelCopyTable(
             hashTableBuckets[hash].HashTableEntryValue = currentValue;
             return;
         }
-        
         hash = (hash + 1) % limitSize;
     }
 }
