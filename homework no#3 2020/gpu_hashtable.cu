@@ -94,11 +94,7 @@ __global__ void kernelInsertEntry(int *keys, int *values, int *currentSize, int 
                 atomicAdd(currentSize, 1);
             atomicExch(&hashTableBuckets[hash].HashTableEntryValue, currentValue);
             return;
-        } else {
-            atomicExch(&hashTableBuckets[hash].HashTableEntryValue, currentValue);
-            return;
         }
-
         hash = (hash + 1) % limitSize;
     }
 }

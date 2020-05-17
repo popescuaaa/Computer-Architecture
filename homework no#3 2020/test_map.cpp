@@ -94,7 +94,11 @@ int main(int argc, char **argv)
 	for(int chunkStart = 0; chunkStart < chunkSizeUpdate; chunkStart++) {
 		vecValues[chunkStart] += 1111111 + chunkStart;
 	}
+	cout << "Before update...\n";
+	
 	HASH_BATCH_INSERT(&vecKeys[0], &vecValues[0], chunkSizeUpdate);
+
+	cout << "After update...\n";
 
 	// perform GET and test performance
 	for(int chunkStart = 0; chunkStart < numKeys; chunkStart += chunkSize) {
