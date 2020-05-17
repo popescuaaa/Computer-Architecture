@@ -90,7 +90,7 @@ __global__ void kernelInsertEntry(int *keys, int *values, int *currentSize, int 
         int inplaceKey = atomicCAS(&hashTableBuckets[hash].HashTableEntryKey, KEY_INVALID, currentKey);
 
         if (inplaceKey == currentKey || inplaceKey == KEY_INVALID) {
-            if (inplaceKey == currentKey)
+            if (inplaceKey == KEY_INVALID)
                 atomicAdd(currentSize, 1);
             atomicExch(&hashTableBuckets[hash].HashTableEntryValue, currentValue);
             return;
@@ -172,7 +172,7 @@ __global__ void kernelGetEntry( int *keys, int *values, int numKeys, int limitSi
     while(true) {
         if (hashTableBuckets[hash].HashTableEntryKey == currentKey) {
             atomicExch(&values[threadId], hashTableBuckets[hash].HashTableEntryValue);
-            //return;
+            return;
         }
 
         if (hashTableBuckets[hash].HashTableEntryKey == KEY_INVALID) {
