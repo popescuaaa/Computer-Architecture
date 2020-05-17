@@ -93,7 +93,7 @@ int main(int argc, char **argv)
 	// perform INSERT for update validation
 	int chunkSizeUpdate = min(64, numKeys);
 	for(int chunkStart = 0; chunkStart < chunkSizeUpdate; chunkStart++) {
-		//vecValues[chunkStart] += 1111111 + chunkStart;
+		vecValues[chunkStart] += 1111111 + chunkStart;
 	}
 	cout << "Before update...\n";
 

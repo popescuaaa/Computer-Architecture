@@ -253,6 +253,7 @@ __global__ void kernelCopyTable(
 /* RESHAPE HASH
  */
 void GpuHashTable::reshape(int numBucketsReshape) {
+    cout << "pennis"<< endl;
     HashTableEntry *hashTableBucketsReshaped;
     int newLimitSize = numBucketsReshape;
 
