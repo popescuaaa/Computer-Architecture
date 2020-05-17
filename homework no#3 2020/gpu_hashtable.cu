@@ -125,12 +125,10 @@ __global__ void kernelInsertEntry(int *keys, int *values, int numKeys, HashTable
     cudaMemcpy(deviceValues, values, numKeys * sizeof(int), cudaMemcpyHostToDevice);
 
     /* Use CUDA to computer the optimal blockSize and WORKER/block */
-    int minGridSize;
-    int threadBlockSize = 512;
-    //cudaOccupancyMaxPotentialBlockSize(&minGridSize, &threadBlockSize, kernelInsertEntry, 0, 0);
-    cout << threadBlockSize << endl;
-    int gridSize = ceil(numKeys/ threadBlockSize) + 1 ;
-    cout << gridSize << endl;
+    int threadBlockSize = 1024;
+    int gridSize = numKeys/ threadBlockSize;
+    if (numKeys % threadBlockSize)
+        gridSize++;
 
     kernelInsertEntry<<< gridSize, threadBlockSize >>>(
             deviceKeys,
@@ -195,11 +193,10 @@ __global__ void kernelGetEntry( int *keys, int *values, int numKeys, int limitSi
 
     cudaMemcpy(deviceKeys, keys, numKeys * sizeof(int), cudaMemcpyHostToDevice);
 
-    int minGridSize;
-    int threadBlockSize = 512;
-    //cudaOccupancyMaxPotentialBlockSize(&minGridSize, &threadBlockSize, kernelInsertEntry, 0, 0);
-
-    int gridSize = ceil(numKeys / threadBlockSize) + 1;
+    int threadBlockSize = 1024;
+    int gridSize = numKeys/ threadBlockSize;
+    if (numKeys % threadBlockSize)
+        gridSize++;
 
     kernelGetEntry<<< gridSize, threadBlockSize >>>(
             deviceKeys,
@@ -274,12 +271,11 @@ void GpuHashTable::reshape(int numBucketsReshape) {
 
     cudaMemset(hashTableBucketsReshaped, 0, newLimitSize * sizeof(HashTableEntry));
 
-    int minGridSize;
-    int threadBlockSize = 512;
-    //cudaOccupancyMaxPotentialBlockSize(&minGridSize, &threadBlockSize, kernelInsertEntry, 0, 0);
+    int threadBlockSize = 1024;
+    int gridSize = numKeys/ threadBlockSize;
+    if (numKeys % threadBlockSize)
+        gridSize++;
     
-    int gridSize = ceil(limitSize / threadBlockSize) + 1;
-
     kernelCopyTable<<< gridSize, threadBlockSize >>>(
             hashTableBuckets,
             limitSize,
