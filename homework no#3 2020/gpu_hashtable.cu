@@ -202,10 +202,10 @@ __global__ void kernelGetEntry( int *keys, int *values, int numKeys, int limitSi
     cudaMemcpy(deviceKeys, keys, numKeys * sizeof(int), cudaMemcpyHostToDevice);
 
     int minGridSize;
-    int threadBlockSize;
-    cudaOccupancyMaxPotentialBlockSize(&minGridSize, &threadBlockSize, kernelInsertEntry, 0, 0);
+    int threadBlockSize = 512;
+    //cudaOccupancyMaxPotentialBlockSize(&minGridSize, &threadBlockSize, kernelInsertEntry, 0, 0);
 
-    int gridSize = ceil((numKeys + threadBlockSize - 1) / threadBlockSize);
+    int gridSize = ceil(numKeys / threadBlockSize);
 
     kernelGetEntry<<< gridSize, threadBlockSize >>>(
             deviceKeys,
