@@ -138,12 +138,7 @@ __global__ void kernelInsertEntry(int *keys, int *values, int *currentSize, int 
     cout << threadBlockSize << endl;
     int gridSize = ceil(numKeys / threadBlockSize);
     cout << minGridSize << endl;
-
-    cudaEvent_t start, stop;
-    cudaEventCreate(&start);
-    cudaEventCreate(&stop);
-    cudaEventRecord(start);
-
+    
     kernelInsertEntry<<< gridSize, threadBlockSize >>>(
             deviceKeys,
             deviceValues,
@@ -152,14 +147,10 @@ __global__ void kernelInsertEntry(int *keys, int *values, int *currentSize, int 
             hashTableBuckets,
             limitSize
             );
-            
-            
-    cudaEventRecord(stop);
-    cudaEventSynchronize(stop);
 
-    // cudaError_t cudaerr = cudaDeviceSynchronize();
-    // if (cudaerr != cudaSuccess)
-    //     printf("kernel launch failed with error \"%s\".\n", cudaGetErrorString(cudaerr));
+    cudaError_t cudaerr = cudaDeviceSynchronize();
+    if (cudaerr != cudaSuccess)
+        printf("kernel launch failed with error \"%s\".\n", cudaGetErrorString(cudaerr));
 
     cudaFree(deviceKeys);
     cudaFree(deviceValues);
