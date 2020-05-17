@@ -87,24 +87,14 @@ __global__ void kernelInsertEntry(int *keys, int *values, int *currentSize, int 
     int hash = getHash(currentKey, limitSize);
     
     while(true) {
-        if (hashTableBuckets[hash].HashTableEntryKey == KEY_INVALID) {
-            atomicAdd(currentSize, 1);
-            atomicExch(&hashTableBuckets[hash].HashTableEntryKey, currentKey);
+        int inplaceKey = atomicCAS(&hashTableBuckets[hash].HashTableEntryKey, KEY_INVALID, currentKey);
+
+        if (inplaceKey == currentKey || inplaceKey == KEY_INVALID) {
+            if (inplaceKey == currentKey)
+                atomicAdd(currentSize, 1);
             atomicExch(&hashTableBuckets[hash].HashTableEntryValue, currentValue);
             return;
-        } else {
-            if (hashTableBuckets[hash].HashTableEntryKey == currentKey) {
-                atomicExch(&hashTableBuckets[hash].HashTableEntryValue, currentValue);
-                return;
-            }
         }
-        //int inplaceKey = atomicCAS(&hashTableBuckets[hash].HashTableEntryKey, KEY_INVALID, currentKey);
-
-        // if (inplaceKey == currentKey || inplaceKey == KEY_INVALID) {
-        //     if (inplaceKey == currentKey)
-                
-        //     return;
-        // }
 
         hash = (hash + 1) % limitSize;
     }
@@ -166,7 +156,6 @@ __global__ void kernelInsertEntry(int *keys, int *values, int *currentSize, int 
     cudaFree(deviceKeys);
     cudaFree(deviceValues);
    
-
 	return SUCCESS;
 }
 
@@ -179,11 +168,11 @@ __global__ void kernelGetEntry( int *keys, int *values, int numKeys, int limitSi
 
     int currentKey = keys[threadId];
     int hash = getHash(currentKey, limitSize);
-   
+    
     while(true) {
         if (hashTableBuckets[hash].HashTableEntryKey == currentKey) {
             atomicExch(&values[threadId], hashTableBuckets[hash].HashTableEntryValue);
-            return;
+            //return;
         }
 
         if (hashTableBuckets[hash].HashTableEntryKey == KEY_INVALID) {
