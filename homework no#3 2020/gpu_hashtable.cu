@@ -103,7 +103,8 @@ __global__ void kernelInsertEntry(int *keys, int *values, int *currentSize, int 
 /* INSERT BATCH
  */
  bool GpuHashTable::insertBatch(int *keys, int* values, int numKeys) {
-
+    cout << "Insert batch is called...\n";
+    
     int currentSizeCPU;
     cudaMemcpy(&currentSizeCPU, currentSize, sizeof(int), cudaMemcpyDeviceToHost);
     int futureLoadFactor = (float) (currentSizeCPU + numKeys) / limitSize;
