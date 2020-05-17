@@ -272,8 +272,8 @@ void GpuHashTable::reshape(int numBucketsReshape) {
     cudaMemset(hashTableBucketsReshaped, 0, newLimitSize * sizeof(HashTableEntry));
 
     int threadBlockSize = 1024;
-    int gridSize = limitSizeOrig / threadBlockSize;
-    if (limitSizeOrig % threadBlockSize)
+    int gridSize = limitSize / threadBlockSize;
+    if (limitSize % threadBlockSize)
         gridSize++;
     
     kernelCopyTable<<< gridSize, threadBlockSize >>>(
