@@ -138,7 +138,7 @@ __global__ void kernelInsertEntry(int *keys, int *values, int *currentSize, int 
     cout << threadBlockSize << endl;
     int gridSize = ceil(numKeys / threadBlockSize);
     cout << minGridSize << endl;
-    
+
     kernelInsertEntry<<< gridSize, threadBlockSize >>>(
             deviceKeys,
             deviceValues,
@@ -282,10 +282,10 @@ void GpuHashTable::reshape(int numBucketsReshape) {
     cudaMemset(hashTableBucketsReshaped, 0, newLimitSize * sizeof(HashTableEntry));
 
     int minGridSize;
-    int threadBlockSize;
-    cudaOccupancyMaxPotentialBlockSize(&minGridSize, &threadBlockSize, kernelInsertEntry, 0, 0);
+    int threadBlockSize = 512;
+    //cudaOccupancyMaxPotentialBlockSize(&minGridSize, &threadBlockSize, kernelInsertEntry, 0, 0);
     
-    int gridSize = ceil((limitSize + threadBlockSize - 1) / threadBlockSize);
+    int gridSize = ceil(limitSize / threadBlockSize);
 
     kernelCopyTable<<< gridSize, threadBlockSize >>>(
             hashTableBuckets,
