@@ -133,11 +133,11 @@ __global__ void kernelInsertEntry(int *keys, int *values, int *currentSize, int 
 
     /* Use CUDA to computer the optimal blockSize and WORKER/block */
     int minGridSize;
-    int threadBlockSize;
-    cudaOccupancyMaxPotentialBlockSize(&minGridSize, &threadBlockSize, kernelInsertEntry, 0, 0);
+    int threadBlockSize = 512;
+    //cudaOccupancyMaxPotentialBlockSize(&minGridSize, &threadBlockSize, kernelInsertEntry, 0, 0);
     cout << threadBlockSize << endl;
-    int gridSize = ceil((numKeys + threadBlockSize - 1) / threadBlockSize);
-
+    int gridSize = ceil(numKeys / threadBlockSize);
+    cout << minGridSize << endl;
     kernelInsertEntry<<< gridSize, threadBlockSize >>>(
             deviceKeys,
             deviceValues,
